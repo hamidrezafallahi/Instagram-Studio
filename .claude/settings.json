@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "mcp__023fd27d-b909-4d50-9ccc-d8ad00dd3a07",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__posts_publish_now",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__posts_bulk_upload_posts",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__posts_cross_post",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__posts_retry_all_failed",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__support_ask",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__support_assistant_get_support_answer",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__profiles_create",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__profiles_delete",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__accounts_move_account_to_profile",
+      "mcp__1a7936a8-5034-48a7-964f-95bc40ca5782__resize-design",
+      "mcp__1a7936a8-5034-48a7-964f-95bc40ca5782__remove-background",
+      "mcp__1a7936a8-5034-48a7-964f-95bc40ca5782__create-brand-template-draft",
+      "mcp__1a7936a8-5034-48a7-964f-95bc40ca5782__publish-brand-template",
+      "mcp__1a7936a8-5034-48a7-964f-95bc40ca5782__create-design-from-brand-template",
+      "mcp__1a7936a8-5034-48a7-964f-95bc40ca5782__generate-image",
+      "mcp__1a7936a8-5034-48a7-964f-95bc40ca5782__create-video",
+      "mcp__1a7936a8-5034-48a7-964f-95bc40ca5782__separate-image-layers"
+    ],
+    "ask": [
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__posts_create",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__posts_update",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__posts_edit_post",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__posts_delete",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__posts_unpublish_post",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__posts_retry",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__queue_create_queue_slot",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__queue_update_queue_slot",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__queue_delete_queue_slot",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__comments_reply_to_inbox_post",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__mentions_reply_to_mention",
+      "mcp__8ca0a414-7010-44c3-8a62-e915245ed1a6__profiles_update",
+      "mcp__1a7936a8-5034-48a7-964f-95bc40ca5782__create-design",
+      "mcp__1a7936a8-5034-48a7-964f-95bc40ca5782__generate-design",
+      "mcp__1a7936a8-5034-48a7-964f-95bc40ca5782__generate-design-structured",
+      "mcp__1a7936a8-5034-48a7-964f-95bc40ca5782__create-design-from-candidate"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(Bash|PowerShell|mcp__(?!ccd_|visualize__|mcp-registry__).+)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard.mjs\"",
+            "timeout": 15,
+            "onFailure": "block",
+            "statusMessage": "Instagram Studio guard"
+          }
+        ]
+      }
+    ]
+  }
+}
