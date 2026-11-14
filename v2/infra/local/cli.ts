@@ -103,6 +103,13 @@ async function runApps(config: RuntimeConfig, mode: 'dev' | 'start'): Promise<vo
       env,
     ),
     launch(
+      'worker',
+      process.execPath,
+      [...(mode === 'dev' ? ['--watch'] : []), join('apps', 'worker', 'src', 'main.ts')],
+      config.repoRoot,
+      env,
+    ),
+    launch(
       'dashboard',
       process.execPath,
       [nextBin, mode === 'dev' ? 'dev' : 'start', '-p', String(config.dashboardPort), '-H', '127.0.0.1'],

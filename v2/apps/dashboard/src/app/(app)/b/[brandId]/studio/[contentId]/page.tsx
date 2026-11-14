@@ -22,6 +22,7 @@ import {
   Tabs,
   Toast,
 } from '@/components/ui.tsx';
+import { PublishPanel } from '@/components/publishing.tsx';
 import { api } from '@/lib/api.ts';
 import { useBrand } from '@/lib/brand.ts';
 import { faNumber, formatDateTime } from '@/lib/format.ts';
@@ -143,12 +144,12 @@ function Editor({ detail, onSaved }: { detail: ContentItemDetail; onSaved: (next
               ذخیره به‌صورت نسخهٔ تازه
             </Button>
             {dirty ? <Button variant="ghost" onClick={() => setText(current.text)}>بازگرداندن متن</Button> : null}
-            <Button disabledReason="تأیید وابسته به نسخه و زمان‌بندی انتشار در مرحلهٔ M2 ساخته می‌شود.">تأیید و زمان‌بندی</Button>
           </div>
         </>
       ) : (
         <Banner tone="warn">این محتوا در وضعیت فعلی قابل ویرایش نیست.</Banner>
       )}
+      <PublishPanel detail={detail} />
     </div>
   );
 }

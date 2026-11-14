@@ -65,16 +65,20 @@ export const actionMachine: StateMachine<ActionState> = {
   transitions: {
     proposed: ['authorized', 'awaiting_approval', 'awaiting_funds', 'denied', 'manual_required'],
     awaiting_approval: ['authorized', 'denied'],
-    awaiting_funds: ['authorized', 'denied'],
-    // بررسی دوباره درست پیش از dispatch ممکن است مجوز را پس بگیرد.
-    authorized: ['reserved', 'awaiting_approval', 'denied'],
-    reserved: ['executing', 'denied'],
-    executing: ['succeeded', 'failed', 'unknown'],
-    unknown: ['succeeded', 'failed', 'manual_required'],
-    manual_required: ['succeeded', 'failed'],
+    awaiting_funds: ['authorized', 'awaiting_approval', 'denied'],
+    // بررسی دوباره درست پیش از dispatch ممکن است مجوز را پس بگیرد یا مسیر را دستی کند.
+    authorized: ['reserved', 'awaiting_approval', 'awaiting_funds', 'denied', 'failed', 'manual_required'],
+    reserved: ['executing', 'authorized', 'denied'],
+    // executing → reserved فقط وقتی مجاز است که ارائه‌دهنده صریحاً رد کرده (failed قطعی و قابل تکرار)
+    // یا reconcile ثابت کرده چیزی ثبت نشده است؛ هرگز برای پاسخ نامعلوم.
+    executing: ['succeeded', 'failed', 'unknown', 'reserved'],
+    // نامعلوم فقط با اثبات حل می‌شود: موفق، شکست قطعی، اثبات عدم ثبت (reserved) یا بررسی دستی.
+    unknown: ['succeeded', 'failed', 'reserved', 'manual_required'],
+    manual_required: ['succeeded', 'failed', 'denied'],
     succeeded: [],
     denied: [],
-    failed: [],
+    // تلاش دوباره فقط با فرمان صریح و بررسی دوبارهٔ سیاست.
+    failed: ['authorized', 'awaiting_approval'],
   },
 };
 
@@ -152,3 +156,33 @@ export const OPEN_RUN_STATES: readonly RunState[] = [
   'waiting_for_harness',
   'paused',
 ];
+
+/**
+ * کوتاه‌ترین مسیر مجاز بین دو وضعیت (BFS روی جدول انتقال). برای پیش‌بردن وضعیت محتوا همراه اجرای
+ * اقدام استفاده می‌شود تا هر گام میانی هم از همان جدول عبور کرده باشد؛ نبود مسیر یعنی انتقال غیرمجاز.
+ */
+export function findPath<S extends string>(machine: StateMachine<S>, from: S, to: S): S[] | null {
+  if (from === to) return [from];
+  const previous = new Map<S, S>();
+  const queue: S[] = [from];
+  const seen = new Set<S>([from]);
+  while (queue.length > 0) {
+    const current = queue.shift() as S;
+    for (const next of machine.transitions[current]) {
+      if (seen.has(next)) continue;
+      seen.add(next);
+      previous.set(next, current);
+      if (next === to) {
+        const path: S[] = [to];
+        let step: S | undefined = current;
+        while (step !== undefined) {
+          path.unshift(step);
+          step = previous.get(step);
+        }
+        return path;
+      }
+      queue.push(next);
+    }
+  }
+  return null;
+}

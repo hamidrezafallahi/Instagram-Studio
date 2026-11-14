@@ -76,6 +76,7 @@
                 "UNKNOWN_OUTCOME",
                 "STALE_REVISION",
                 "UNSUPPORTED_CAPABILITY",
+                "SCHEDULE_EXPIRED",
                 "VALIDATION_FAILED",
                 "UNAUTHENTICATED",
                 "FORBIDDEN",

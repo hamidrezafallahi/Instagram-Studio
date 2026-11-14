@@ -12,6 +12,7 @@ import {
   canonicalJson,
   contentMachine,
   dateOfWeekday,
+  findPath,
   findOwnerInputMarkers,
   findTypographyIssues,
   fundingRequestMachine,
@@ -86,6 +87,17 @@ describe('ماشین حالت اجرا، اقدام و درخواست هزینه
     assert.equal(canTransition(actionMachine, 'awaiting_approval', 'executing'), false);
     assert.equal(canTransition(actionMachine, 'unknown', 'executing'), false);
     assert.ok(canTransition(actionMachine, 'unknown', 'manual_required'));
+    // پاسخ نامعلوم فقط با اثبات عدم ثبت به reserved برمی‌گردد؛ تلاش دوبارهٔ شکست فقط با فرمان صریح.
+    assert.ok(canTransition(actionMachine, 'unknown', 'reserved'));
+    assert.ok(canTransition(actionMachine, 'failed', 'authorized'));
+    assert.equal(canTransition(actionMachine, 'succeeded', 'authorized'), false);
+  });
+
+  it('مسیر مجاز محتوا با findPath از جدول انتقال یافته می‌شود', () => {
+    assert.deepEqual(findPath(contentMachine, 'ready_for_review', 'scheduled'), ['ready_for_review', 'approved', 'scheduled']);
+    assert.deepEqual(findPath(contentMachine, 'scheduled', 'published'), ['scheduled', 'publishing', 'published']);
+    assert.equal(findPath(contentMachine, 'published', 'scheduled'), null);
+    assert.equal(findPath(contentMachine, 'cancelled', 'approved'), null);
   });
 
   it('شارژشدن اعتبار پایان چرخهٔ درخواست است، نه مجوز انتشار', () => {

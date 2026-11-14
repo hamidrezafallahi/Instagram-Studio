@@ -31,4 +31,36 @@
 - تصمیم‌های باز مالک در جدول انتهای PROGRESS.md آمده‌اند؛ پیش‌فرض‌های امن (draft_only، free_only) حفظ شده‌اند.
 
 ## ۵. نتیجهٔ نهایی این نشست
-در انتهای نشست در همین بخش تکمیل می‌شود.
+| مرحله | وضعیت پایانی | مدرک |
+|---|---|---|
+| M0 | passed (بدون تغییر) | [M0.md](M0.md) |
+| M1 | **passed** | [M1.md](M1.md)، ۱۵۴ از ۱۵۴ آزمون |
+| M2 | **passed** (محیط fake) | [M2.md](M2.md)، ۱۶۸ از ۱۶۸ آزمون، ۱۳ آزمون پذیرش اختصاصی |
+| M3 | not_started — آمادهٔ شروع | — |
+| M4 تا M8 | not_started — M4 به بعد blocked_external تا دریافت دسترسی‌ها | جدول تصمیم‌های باز در PROGRESS.md |
+
+### فایل‌های اصلی تغییرکرده در M2
+- `packages/data/migrations/0002_execution.sql`، `packages/data/src/repos/execution.ts`
+- `packages/orchestration/src/execution.ts`، `planning.ts`، `index.ts`
+- `packages/contracts/src/api.ts`، `errors.ts` (SCHEDULE_EXPIRED)، `labels.ts`، OpenAPI و JSON Schema بازتولیدشده
+- `packages/domain/src/state-machines.ts` (ماشین action، `findPath`)
+- `apps/api/src/app.ts`، `apps/worker/` (تازه)، `infra/local/cli.ts`
+- داشبورد: `components/publishing.tsx`، صفحهٔ `approvals`، صفحهٔ محتوا، منوی کناری
+- آزمون: `tests/acceptance/m2-execution.test.ts`، `tests/support/harness.ts`، `packages/domain/src/domain.test.ts`
+- اسناد: M1.md، M2.md، PROGRESS.md، DECISIONS.md (ADR-024 تا ADR-028)، apps/worker/README.md، tests/README.md
+
+### فرض‌های گرفته‌شده بدون حضور مالک (قابل بازبینی)
+- حالت اختیار پیش‌فرض همچنان `draft_only` و هزینه `free_only` است؛ چیزی به‌طور خودکار منتشر نمی‌شود.
+- مهلت انتشار عقب‌مانده ۲ ساعت و اعتبار تأیید ۷ روز است (ADR-026، ADR-028).
+- مسیر دستی در draft_only هم ساخته می‌شود چون انتشار را خود مالک انجام می‌دهد (ADR-027).
+- migration `0002_execution` روی پایگاه دادهٔ محلی دستگاه ساخت هم اعمال شد (رو به جلو، بدون حذف داده).
+
+### کارهای باقی‌مانده (به ترتیب پیشنهادی)
+1. **M3** (بدون مانع بیرونی برای بخش محلی): رندر قالب HTML/SVG محلی، جدول‌های assets/asset_versions با checksum، اتصال درگاه مدل به provider محلی؛ نصب FFmpeg برای ویدئو تصمیم مالک است.
+2. بازبینی مرورگری کامل داشبورد (به‌ویژه صفحهٔ تازهٔ «تأییدها و صف انتشار»).
+3. UI بودجه و ویرایش قاعده‌های auto_scoped.
+4. **M4**: نیاز به token ربات تلگرام و سایت staging مالک. **M5**: نیاز به حساب و مجوز Instagram/LinkedIn.
+5. M6 تا M8 طبق نقشه پس از M4/M5.
+
+### Git
+همهٔ کار روی شاخهٔ `master` commit و به `origin/master` push شد. شاخهٔ دیگری (محلی یا remote) وجود نداشت که حذف شود.

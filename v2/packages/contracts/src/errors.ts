@@ -16,6 +16,7 @@ export const ErrorCode = z.enum([
   'UNKNOWN_OUTCOME',
   'STALE_REVISION',
   'UNSUPPORTED_CAPABILITY',
+  'SCHEDULE_EXPIRED',
   // خطاهای API و دامنه
   'VALIDATION_FAILED',
   'UNAUTHENTICATED',
@@ -45,6 +46,7 @@ export const ERROR_HTTP: Record<ErrorCode, { status: number; retryable: boolean 
   UNKNOWN_OUTCOME: { status: 409, retryable: false },
   STALE_REVISION: { status: 409, retryable: false },
   UNSUPPORTED_CAPABILITY: { status: 422, retryable: false },
+  SCHEDULE_EXPIRED: { status: 409, retryable: false },
   VALIDATION_FAILED: { status: 400, retryable: false },
   UNAUTHENTICATED: { status: 401, retryable: false },
   FORBIDDEN: { status: 403, retryable: false },
@@ -72,6 +74,7 @@ export const ERROR_MESSAGE_FA: Record<ErrorCode, string> = {
   UNKNOWN_OUTCOME: 'نتیجهٔ عملیات نامعلوم است و به بررسی نیاز دارد؛ ارسال دوباره انجام نشد.',
   STALE_REVISION: 'این مورد در این فاصله تغییر کرده است؛ نسخهٔ تازه را ببینید و دوباره تلاش کنید.',
   UNSUPPORTED_CAPABILITY: 'این قابلیت برای این اتصال در دسترس نیست.',
+  SCHEDULE_EXPIRED: 'زمان انتشار گذشته است؛ برای جلوگیری از هجوم پست‌های عقب‌مانده منتشر نشد. زمان تازه تعیین کنید.',
   VALIDATION_FAILED: 'ورودی نامعتبر است.',
   UNAUTHENTICATED: 'ابتدا وارد حساب خود شوید.',
   FORBIDDEN: 'شما به این بخش دسترسی ندارید.',

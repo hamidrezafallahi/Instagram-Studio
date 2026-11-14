@@ -19,14 +19,13 @@ const BRAND_SECTIONS: readonly (Omit<NavItem, 'href'> & { segment: string })[] =
   { segment: '/connections', label: 'اتصال‌ها' },
   { segment: '/calendar', label: 'تقویم' },
   { segment: '/studio', label: 'استودیو' },
+  { segment: '/approvals', label: 'تأییدها و صف انتشار' },
   { segment: '/reports', label: 'گزارش' },
   { segment: '/runs', label: 'اجراها' },
   { segment: '/settings', label: 'اختیار و تنظیمات' },
 ];
 
 const PLANNED: readonly { label: string; stage: string; reason: string }[] = [
-  { label: 'تأییدها', stage: 'M2', reason: 'تأیید وابسته به نسخه و اجرای کنترل‌شده در مرحلهٔ M2 ساخته می‌شود.' },
-  { label: 'هزینه و درخواست‌ها', stage: 'M2', reason: 'دفتر هزینه و درخواست شارژ در مرحلهٔ M2 ساخته می‌شود؛ اکنون همه‌چیز رایگان است.' },
   { label: 'صندوق پیام', stage: 'M6', reason: 'پاسخ پیام‌ها پس از اتصال واقعی حساب‌ها در مرحلهٔ M6 ساخته می‌شود.' },
   { label: 'رشد و مشتری', stage: 'M6', reason: 'ثبت سرنخ و پیگیری در مرحلهٔ M6 ساخته می‌شود.' },
   { label: 'سایت و سئو', stage: 'M7', reason: 'بررسی سایت و تغییر قابل برگشت در مرحلهٔ M7 ساخته می‌شود.' },

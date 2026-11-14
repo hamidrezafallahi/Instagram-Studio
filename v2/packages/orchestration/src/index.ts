@@ -9,23 +9,26 @@ import { createAuthService } from './auth.ts';
 import { createBrandService } from './brands.ts';
 import { createConnectionService } from './connections.ts';
 import type { StudioDeps } from './context.ts';
+import { createExecutionService, type ExecutionFaults } from './execution.ts';
 import { createPlanningService } from './planning.ts';
 import { createReportService } from './reports.ts';
 import { createRunService } from './runs.ts';
 import { createSampleDataService } from './sample-data.ts';
 
 export type { Access, AuthenticatedSession, IssuedSession } from './auth.ts';
+export { PUBLISH_GRACE_MS, actionTypeFor, type ExecutionFaults } from './execution.ts';
 export type { Actor, BrandCall, Principal, StudioDeps, WorkspaceCall } from './context.ts';
 
 /**
  * لایهٔ سرویس مشترک استودیو (ADR-008، ADR-021). API، و بعداً worker، MCP و پیام‌رسان مالک،
  * همگی همین شیء را می‌سازند؛ هیچ ورودی مسیر میان‌بری به داده یا کانکتور ندارد.
  */
-export function createStudio(deps: StudioDeps) {
+export function createStudio(deps: StudioDeps, options: { faults?: ExecutionFaults } = {}) {
   const auth = createAuthService(deps);
   const brands = createBrandService(deps);
   const connections = createConnectionService(deps);
-  const planning = createPlanningService(deps, brands);
+  const execution = createExecutionService(deps, brands, connections, options.faults);
+  const planning = createPlanningService(deps, brands, { onRevision: execution.invalidateForRevision });
   const runs = createRunService(deps, brands, connections);
   const reports = createReportService(deps, brands);
   const sampleData = createSampleDataService(deps, brands, connections);
@@ -36,6 +39,7 @@ export function createStudio(deps: StudioDeps) {
     brands,
     connections,
     planning,
+    execution,
     runs,
     reports,
     sampleData,
@@ -66,6 +70,9 @@ export interface StudioOptions {
   /** حالت «سمت ارائه‌دهنده» کانکتور نمونه؛ در آزمون برای بررسی تعداد فراخوانی تزریق می‌شود. */
   fakeState?: FakeProviderState;
   masterKey?: Buffer;
+  /** فقط آزمون: تزریق خطا در worker. */
+  faults?: ExecutionFaults;
+  applicationName?: string;
 }
 
 /** composition root مشترک: همهٔ وابستگی‌ها از تنظیمات اجرا ساخته می‌شوند. */
@@ -75,7 +82,7 @@ export function createStudioFromConfig(options: StudioOptions): Studio {
   // تنها adapter اجرایی این نسخه کانکتور نمونه است؛ کانکتورهای واقعی فقط پس از اثبات اضافه می‌شوند.
   connectors.register(createFakeConnector(options.fakeState ?? new FakeProviderState()));
   return createStudio({
-    db: new Database(options.databaseUrl, { applicationName: 'studio-api' }),
+    db: new Database(options.databaseUrl, { applicationName: options.applicationName ?? 'studio-api' }),
     vault: createVault(options.masterKey ?? loadMasterKey(config.home)),
     packs: loadIndustryPacks(),
     register: loadCapabilityRegister(),
@@ -84,5 +91,5 @@ export function createStudioFromConfig(options: StudioOptions): Studio {
     logger: options.logger ?? createLogger({ service: 'studio', level: config.logLevel }),
     settings: { profile: config.profile, sampleData: config.sampleData, sessionTtlHours: 24 * 7 },
     now: options.now ?? (() => new Date()),
-  });
+  }, { faults: options.faults });
 }

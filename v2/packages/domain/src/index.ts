@@ -5,6 +5,7 @@ export {
   assertTransition,
   canTransition,
   contentMachine,
+  findPath,
   fundingRequestMachine,
   inboxMachine,
   isTerminal,

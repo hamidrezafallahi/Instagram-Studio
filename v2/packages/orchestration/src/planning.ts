@@ -25,7 +25,12 @@ import {
 import type { BrandService } from './brands.ts';
 import { audit, notFound, type BrandCall, type StudioDeps } from './context.ts';
 
-export function createPlanningService(deps: StudioDeps, brands: BrandService) {
+export interface PlanningHooks {
+  /** در همان تراکنش ویرایش: باطل‌کردن تأییدها و قصدهای ارسال‌نشدهٔ نسخهٔ قبلی (ADR-005). */
+  onRevision?: (tx: Tx, call: BrandCall, contentId: string) => Promise<number>;
+}
+
+export function createPlanningService(deps: StudioDeps, brands: BrandService, hooks: PlanningHooks = {}) {
   async function contentDetail(tx: Tx, contentId: string): Promise<ContentItemDetail> {
     const item = await contentRepo.getContentItem(tx, contentId);
     const brief = item ? await contentRepo.getBrief(tx, contentId) : null;
@@ -92,6 +97,8 @@ export function createPlanningService(deps: StudioDeps, brands: BrandService) {
             entry.content_id,
             scheduledAt,
           ]);
+          // تغییر تقویم پس از تأیید، تأیید و قصد ارسال‌نشدهٔ همان محتوا را باطل می‌کند (AGENTS.md).
+          await hooks.onRevision?.(tx, call, entry.content_id);
         }
         await audit(tx, call, {
           action: 'schedule_entry.update',
@@ -183,12 +190,13 @@ export function createPlanningService(deps: StudioDeps, brands: BrandService) {
           qa_status: qa.output.qa_result.status,
         });
         if (!updated) throw new StudioError('STALE_REVISION');
+        const invalidated = (await hooks.onRevision?.(tx, call, contentId)) ?? 0;
         await audit(tx, call, {
           action: 'content.revision.create',
           target_type: 'content',
           target_id: contentId,
           outcome: 'succeeded',
-          metadata: { revision, state: finalState, qa_status: qa.output.qa_result.status },
+          metadata: { revision, state: finalState, qa_status: qa.output.qa_result.status, invalidated_intents: invalidated },
         });
         return contentDetail(tx, contentId);
       });

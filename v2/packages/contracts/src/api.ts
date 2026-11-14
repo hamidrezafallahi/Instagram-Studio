@@ -15,8 +15,13 @@ import {
   Weekday,
 } from './primitives.ts';
 import {
+  ActionState,
+  ApprovalDecision,
   AuthorityMode,
+  BillingMode,
   BrandStatus,
+  FundingRequestState,
+  ManualTaskState,
   ContentState,
   RunState,
   SpendMode,
@@ -501,6 +506,157 @@ export const WorkspaceOverview = z
   .meta({ id: 'WorkspaceOverview' });
 export type WorkspaceOverview = z.infer<typeof WorkspaceOverview>;
 
+/* ───────────────────────────── اجرای کنترل‌شده (M2) ───────────────────────────── */
+
+/** درخواست انتشار یک محتوا روی یک اتصال؛ یک کلیک = یک ActionIntent با کلید یکتایی. */
+export const CreatePublishIntentBody = z
+  .strictObject({
+    connection_id: Uuid,
+    idempotency_key: z.string().min(8).max(128),
+    /** اگر داده نشود زمان آیتم تقویم (یا اکنون) استفاده می‌شود. */
+    scheduled_at_utc: UtcTimestamp.optional(),
+  })
+  .meta({ id: 'CreatePublishIntentBody' });
+export type CreatePublishIntentBody = z.infer<typeof CreatePublishIntentBody>;
+
+export const ApprovalView = z
+  .strictObject({
+    id: Uuid,
+    payload_hash: Sha256,
+    approver_id: Uuid,
+    decision: ApprovalDecision,
+    policy_revision: z.int().positive(),
+    note: z.string().nullable(),
+    approved_at: UtcTimestamp,
+    expires_at: UtcTimestamp,
+    /** فقط تأییدی که hash آن با قصد یکی و منقضی‌نشده باشد معتبر است. */
+    valid: z.boolean(),
+  })
+  .meta({ id: 'ApprovalView' });
+export type ApprovalView = z.infer<typeof ApprovalView>;
+
+export const IntentView = z
+  .strictObject({
+    id: Uuid,
+    brand_id: Uuid,
+    action_type: Slug,
+    category: z.enum(['external_publish', 'external_message', 'external_change', 'spend']),
+    connection_id: Uuid,
+    content_id: Uuid,
+    content_revision: z.int().positive(),
+    channel: Channel,
+    format: ContentFormat,
+    payload_hash: Sha256,
+    idempotency_key: z.string(),
+    state: ActionState,
+    state_fa: z.string(),
+    policy_revision: z.int().positive(),
+    policy_reason: z.string(),
+    policy_reason_fa: z.string(),
+    estimated_cost: Money,
+    scheduled_at_utc: UtcTimestamp,
+    expires_at: UtcTimestamp,
+    attempts: z.int().nonnegative(),
+    last_error: z.strictObject({ code: ErrorCode, message_fa: z.string() }).nullable(),
+    result: z
+      .strictObject({
+        external_id: z.string().nullable(),
+        external_url: z.string().nullable(),
+        evidence_ref: z.string().nullable(),
+        verification: z.enum(['provider', 'reconciled', 'owner_reported']),
+      })
+      .nullable(),
+    approvals: z.array(ApprovalView),
+    manual_task_id: Uuid.nullable(),
+    funding_request_id: Uuid.nullable(),
+    is_sample: z.boolean(),
+    /** true یعنی این پاسخ تکرار درخواست قبلی با همان کلید است. */
+    replayed: z.boolean(),
+    created_at: UtcTimestamp,
+    updated_at: UtcTimestamp,
+  })
+  .meta({ id: 'IntentView' });
+export type IntentView = z.infer<typeof IntentView>;
+
+/** تأیید به hash دقیق نسخه‌ای که مالک دیده است بسته می‌شود. */
+export const DecideApprovalBody = z
+  .strictObject({
+    decision: ApprovalDecision,
+    payload_hash: Sha256,
+    note: z.string().max(500).optional(),
+  })
+  .meta({ id: 'DecideApprovalBody' });
+export type DecideApprovalBody = z.infer<typeof DecideApprovalBody>;
+
+export const RetryIntentBody = z
+  .strictObject({ idempotency_key: z.string().min(8).max(128) })
+  .meta({ id: 'RetryIntentBody' });
+export type RetryIntentBody = z.infer<typeof RetryIntentBody>;
+
+export const ManualTaskView = z
+  .strictObject({
+    id: Uuid,
+    brand_id: Uuid,
+    intent_id: Uuid,
+    kind: z.string(),
+    state: ManualTaskState,
+    reason_code: z.string(),
+    instructions_fa: z.string(),
+    package: z.strictObject({
+      channel: Channel,
+      format: ContentFormat,
+      text: z.string(),
+      content_hash: Sha256,
+      scheduled_at_utc: UtcTimestamp,
+      is_sample: z.boolean(),
+    }),
+    completed_url: z.string().nullable(),
+    completed_at: UtcTimestamp.nullable(),
+    created_at: UtcTimestamp,
+  })
+  .meta({ id: 'ManualTaskView' });
+export type ManualTaskView = z.infer<typeof ManualTaskView>;
+
+/** اعلام انتشار دستی توسط مالک؛ نتیجه owner_reported است، نه اثبات ارائه‌دهنده. */
+export const CompleteManualTaskBody = z
+  .strictObject({ external_url: z.url({ protocol: /^https$/ }).max(2048) })
+  .meta({ id: 'CompleteManualTaskBody' });
+export type CompleteManualTaskBody = z.infer<typeof CompleteManualTaskBody>;
+
+export const FundingRequestView = z
+  .strictObject({
+    id: Uuid,
+    brand_id: Uuid,
+    intent_id: Uuid.nullable(),
+    provider: z.string(),
+    purpose: z.string(),
+    amount: Money,
+    quote_expires_at: UtcTimestamp,
+    payment_mode: BillingMode,
+    status: FundingRequestState,
+    decided_by: z.string().nullable(),
+    decided_at: UtcTimestamp.nullable(),
+    version: z.int().positive(),
+    created_at: UtcTimestamp,
+  })
+  .meta({ id: 'FundingRequestView' });
+export type FundingRequestView = z.infer<typeof FundingRequestView>;
+
+/** مالک فقط تصمیم می‌گیرد؛ پرداخت هرگز توسط استودیو انجام نمی‌شود. */
+export const DecideFundingBody = z
+  .strictObject({ expected_version: z.int().positive(), decision: z.enum(['approve', 'decline', 'cancel']) })
+  .meta({ id: 'DecideFundingBody' });
+export type DecideFundingBody = z.infer<typeof DecideFundingBody>;
+
+export const WorkerTickResult = z
+  .strictObject({
+    dispatched: z.int().nonnegative(),
+    claimed: z.int().nonnegative(),
+    outcomes: z.array(z.strictObject({ job_id: Uuid, kind: z.string(), outcome: z.string() })),
+  })
+  .meta({ id: 'WorkerTickResult' });
+export type WorkerTickResult = z.infer<typeof WorkerTickResult>;
+
 /* ─────────────────────────────── جدول مسیرها ─────────────────────────────── */
 
 const list = <T extends z.ZodType>(item: T) => z.strictObject({ items: z.array(item) });
@@ -939,6 +1095,145 @@ export const routes = {
     query: z.strictObject({ limit: z.coerce.number().int().min(1).max(200).optional() }),
     response: list(AuditEvent),
     errors: [...BRAND_ERRORS],
+  }),
+  createPublishIntent: route({
+    id: 'createPublishIntent',
+    method: 'POST',
+    path: `${BRAND}/content/{content_id}/publish-intents`,
+    tag: 'execution',
+    summary_fa: 'ثبت قصد انتشار یک محتوا روی یک اتصال (ActionIntent با کلید یکتایی)',
+    scope: 'brand',
+    min_role: 'editor',
+    params: BrandParams.extend({ content_id: Uuid }),
+    body: CreatePublishIntentBody,
+    response: IntentView,
+    success_status: 201,
+    errors: [...WRITE_ERRORS, 'IDEMPOTENCY_KEY_REUSED', 'INVALID_TRANSITION', 'CONFLICT', 'POLICY_DENIED'],
+  }),
+  listIntents: route({
+    id: 'listIntents',
+    method: 'GET',
+    path: `${BRAND}/intents`,
+    tag: 'execution',
+    summary_fa: 'قصدهای اجرای برند و وضعیت آن‌ها',
+    scope: 'brand',
+    min_role: 'viewer',
+    params: BrandParams,
+    query: z.strictObject({ state: ActionState.optional(), content_id: Uuid.optional() }),
+    response: list(IntentView),
+    errors: [...BRAND_ERRORS],
+  }),
+  getIntent: route({
+    id: 'getIntent',
+    method: 'GET',
+    path: `${BRAND}/intents/{intent_id}`,
+    tag: 'execution',
+    summary_fa: 'جزئیات یک قصد اجرا، تأییدها و نتیجه',
+    scope: 'brand',
+    min_role: 'viewer',
+    params: BrandParams.extend({ intent_id: Uuid }),
+    response: IntentView,
+    errors: [...BRAND_ERRORS],
+  }),
+  decideApproval: route({
+    id: 'decideApproval',
+    method: 'POST',
+    path: `${BRAND}/intents/{intent_id}/approvals`,
+    tag: 'execution',
+    summary_fa: 'تأیید یا رد انسانی وابسته به hash نسخه',
+    scope: 'brand',
+    min_role: 'reviewer',
+    params: BrandParams.extend({ intent_id: Uuid }),
+    body: DecideApprovalBody,
+    response: IntentView,
+    errors: [...WRITE_ERRORS, 'STALE_REVISION', 'INVALID_TRANSITION'],
+  }),
+  retryIntent: route({
+    id: 'retryIntent',
+    method: 'POST',
+    path: `${BRAND}/intents/{intent_id}/retry`,
+    tag: 'execution',
+    summary_fa: 'تلاش دوباره برای قصد ناموفق (هرگز برای نتیجهٔ نامعلوم)',
+    scope: 'brand',
+    min_role: 'editor',
+    params: BrandParams.extend({ intent_id: Uuid }),
+    body: RetryIntentBody,
+    response: IntentView,
+    errors: [...WRITE_ERRORS, 'INVALID_TRANSITION', 'POLICY_DENIED', 'CONFLICT'],
+  }),
+  cancelIntent: route({
+    id: 'cancelIntent',
+    method: 'POST',
+    path: `${BRAND}/intents/{intent_id}/cancel`,
+    tag: 'execution',
+    summary_fa: 'لغو قصدی که هنوز اجرا نشده است',
+    scope: 'brand',
+    min_role: 'editor',
+    params: BrandParams.extend({ intent_id: Uuid }),
+    response: IntentView,
+    errors: [...WRITE_ERRORS, 'INVALID_TRANSITION'],
+  }),
+  listManualTasks: route({
+    id: 'listManualTasks',
+    method: 'GET',
+    path: `${BRAND}/manual-tasks`,
+    tag: 'execution',
+    summary_fa: 'کارهای دستی (بستهٔ انتشار برای مسیرهای بدون API اثبات‌شده)',
+    scope: 'brand',
+    min_role: 'viewer',
+    params: BrandParams,
+    response: list(ManualTaskView),
+    errors: [...BRAND_ERRORS],
+  }),
+  completeManualTask: route({
+    id: 'completeManualTask',
+    method: 'POST',
+    path: `${BRAND}/manual-tasks/{task_id}/complete`,
+    tag: 'execution',
+    summary_fa: 'اعلام انتشار دستی توسط مالک (owner_reported)',
+    scope: 'brand',
+    min_role: 'owner',
+    params: BrandParams.extend({ task_id: Uuid }),
+    body: CompleteManualTaskBody,
+    response: ManualTaskView,
+    errors: [...WRITE_ERRORS, 'INVALID_TRANSITION'],
+  }),
+  listFundingRequests: route({
+    id: 'listFundingRequests',
+    method: 'GET',
+    path: `${BRAND}/funding-requests`,
+    tag: 'billing',
+    summary_fa: 'درخواست‌های شارژ یا پرداخت',
+    scope: 'brand',
+    min_role: 'viewer',
+    params: BrandParams,
+    response: list(FundingRequestView),
+    errors: [...BRAND_ERRORS],
+  }),
+  decideFundingRequest: route({
+    id: 'decideFundingRequest',
+    method: 'POST',
+    path: `${BRAND}/funding-requests/{request_id}/decision`,
+    tag: 'billing',
+    summary_fa: 'تصمیم مالک دربارهٔ درخواست شارژ (پرداخت خودکار انجام نمی‌شود)',
+    scope: 'brand',
+    min_role: 'owner',
+    params: BrandParams.extend({ request_id: Uuid }),
+    body: DecideFundingBody,
+    response: FundingRequestView,
+    errors: [...WRITE_ERRORS, 'STALE_REVISION', 'INVALID_TRANSITION'],
+  }),
+  runWorkerTick: route({
+    id: 'runWorkerTick',
+    method: 'POST',
+    path: '/v1/workspaces/{workspace_id}/worker/tick',
+    tag: 'execution',
+    summary_fa: 'اجرای یک دور worker در همین فرایند (پروفایل local؛ worker مستقل جایگزین آن است)',
+    scope: 'workspace',
+    min_role: 'owner',
+    params: WorkspaceParams,
+    response: WorkerTickResult,
+    errors: ['UNAUTHENTICATED', 'FORBIDDEN', 'CSRF_FAILED'],
   }),
 } as const;
 

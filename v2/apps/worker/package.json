@@ -1,0 +1,15 @@
+{
+  "name": "@studio/worker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "worker و زمان‌بند: outbox → job، lease، انتشار و reconcile",
+  "type": "module",
+  "exports": {
+    ".": "./src/main.ts"
+  },
+  "dependencies": {
+    "@studio/config": "workspace:*",
+    "@studio/orchestration": "workspace:*",
+    "@studio/security": "workspace:*"
+  }
+}

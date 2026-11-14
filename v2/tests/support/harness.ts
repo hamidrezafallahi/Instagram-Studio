@@ -16,7 +16,7 @@ import {
   type RouteResponse,
   type SessionInfo,
 } from '@studio/contracts';
-import { createStudioFromConfig, type Studio } from '@studio/orchestration';
+import { createStudioFromConfig, type ExecutionFaults, type Studio } from '@studio/orchestration';
 import { SecretScrubber, createLogger } from '@studio/security';
 import type { FastifyInstance } from 'fastify';
 import { createTestDatabase, type TestDatabase } from './db.ts';
@@ -157,6 +157,8 @@ export interface Harness {
   /** همهٔ خط‌های log این نمونه؛ برای آزمون نشت راز. */
   logs: string[];
   clock: { now: Date };
+  /** تزریق خطای worker در آزمون crash؛ فیلدها در زمان اجرا خوانده می‌شوند. */
+  faults: ExecutionFaults;
   client(): TestClient;
   /** کلاینتی که راه‌اندازی مالک را انجام داده و وارد شده است. */
   owner(): Promise<TestClient>;
@@ -170,6 +172,7 @@ export async function createHarness(options: { sampleData?: boolean; now?: strin
   const logger = createLogger({ service: 'api-test', level: 'debug', write: (line) => void logs.push(line) });
   const clock = { now: new Date(options.now ?? '2026-11-11T08:00:00.000Z') };
   const fakeState = new FakeProviderState();
+  const faults: ExecutionFaults = {};
   const config: RuntimeConfig = {
     profile: 'local',
     repoRoot: REPO_ROOT,
@@ -192,6 +195,7 @@ export async function createHarness(options: { sampleData?: boolean; now?: strin
     now: () => clock.now,
     fakeState,
     masterKey: randomBytes(32),
+    faults,
   });
   const app = await buildApp({
     studio,
@@ -209,6 +213,7 @@ export async function createHarness(options: { sampleData?: boolean; now?: strin
     scrubber,
     logs,
     clock,
+    faults,
     client: () => new TestClient(app),
     async owner() {
       const client = new TestClient(app);

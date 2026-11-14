@@ -310,6 +310,20 @@ export async function buildApp(options: ApiOptions): Promise<FastifyInstance> {
     weeklyReport: (ctx) => studio.reports.weekly(ctx.brand(), ctx.query.week_of),
     getPolicy: (ctx) => studio.brands.getPolicy(ctx.brand()),
     updatePolicy: (ctx) => studio.brands.updatePolicy(ctx.brand(), ctx.body),
+    createPublishIntent: (ctx) =>
+      studio.execution.createPublishIntent(ctx.brand(), ctx.params.content_id, ctx.body),
+    listIntents: async (ctx) => ({ items: await studio.execution.listIntents(ctx.brand(), ctx.query) }),
+    getIntent: (ctx) => studio.execution.getIntent(ctx.brand(), ctx.params.intent_id),
+    decideApproval: (ctx) => studio.execution.decideApproval(ctx.brand(), ctx.params.intent_id, ctx.body),
+    retryIntent: (ctx) => studio.execution.retryIntent(ctx.brand(), ctx.params.intent_id, ctx.body),
+    cancelIntent: (ctx) => studio.execution.cancelIntent(ctx.brand(), ctx.params.intent_id),
+    listManualTasks: async (ctx) => ({ items: await studio.execution.listManualTasks(ctx.brand()) }),
+    completeManualTask: (ctx) =>
+      studio.execution.completeManualTask(ctx.brand(), ctx.params.task_id, ctx.body),
+    listFundingRequests: async (ctx) => ({ items: await studio.execution.listFunding(ctx.brand()) }),
+    decideFundingRequest: (ctx) =>
+      studio.execution.decideFunding(ctx.brand(), ctx.params.request_id, ctx.body),
+    runWorkerTick: (ctx) => studio.execution.tickWorkspace(ctx.workspace()),
     listAuditEvents: async (ctx) => ({
       items: await studio.reports.auditEvents(ctx.brand(), ctx.query.limit ?? 50),
     }),

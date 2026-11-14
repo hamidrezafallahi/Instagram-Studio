@@ -1,9 +1,12 @@
 import type { Channel, ContentFormat, Role, Weekday } from './primitives.ts';
 import type {
+  ActionState,
   AuthorityMode,
   BrandStatus,
   CapabilityStatus,
   ContentState,
+  FundingRequestState,
+  ManualTaskState,
   RunState,
   SpendMode,
   StepState,
@@ -122,4 +125,37 @@ export const ROLE_LABEL_FA: Record<Role, string> = {
   reviewer: 'بازبین',
   viewer: 'بیننده',
   service: 'سرویس',
+};
+
+export const ACTION_STATE_LABEL_FA: Record<ActionState, string> = {
+  proposed: 'پیشنهادشده',
+  authorized: 'مجاز و در صف',
+  reserved: 'رزرو و آمادهٔ ارسال',
+  executing: 'در حال ارسال',
+  succeeded: 'انجام شد',
+  awaiting_approval: 'منتظر تأیید',
+  denied: 'رد یا لغو شد',
+  awaiting_funds: 'منتظر شارژ',
+  failed: 'ناموفق',
+  unknown: 'نتیجهٔ نامعلوم (در حال بررسی)',
+  manual_required: 'انجام دستی لازم است',
+};
+
+export const MANUAL_TASK_STATE_LABEL_FA: Record<ManualTaskState, string> = {
+  prepared: 'آماده',
+  assigned: 'واگذارشده به مالک',
+  completed_by_owner: 'انجام‌شده به اعلام مالک',
+  verified: 'تأییدشده',
+  unverifiable: 'غیرقابل تأیید',
+};
+
+export const FUNDING_STATE_LABEL_FA: Record<FundingRequestState, string> = {
+  proposed: 'پیشنهادشده',
+  owner_approved: 'تأیید مالک',
+  awaiting_payment: 'منتظر پرداخت مالک',
+  verifying: 'در حال بررسی پرداخت',
+  funded: 'شارژ شد',
+  declined: 'رد شد',
+  expired: 'منقضی شد',
+  cancelled: 'لغو شد',
 };
