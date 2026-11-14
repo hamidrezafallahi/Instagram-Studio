@@ -1,0 +1,13 @@
+{
+  "name": "@studio/security",
+  "version": "0.1.0",
+  "private": true,
+  "description": "رمزنگاری، نشست، vault و حذف راز از log",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@studio/contracts": "workspace:*"
+  }
+}

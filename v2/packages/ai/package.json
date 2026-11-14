@@ -1,0 +1,14 @@
+{
+  "name": "@studio/ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "درگاه مدل: provider قالبی بدون هزینه، مدل محلی و هارنس",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@studio/contracts": "workspace:*",
+    "zod": "catalog:"
+  }
+}

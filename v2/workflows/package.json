@@ -1,0 +1,16 @@
+{
+  "name": "@studio/workflows",
+  "version": "0.1.0",
+  "private": true,
+  "description": "تعریف نسخه‌دار گردش‌کارهای محصول",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@studio/agents": "workspace:*",
+    "@studio/ai": "workspace:*",
+    "@studio/contracts": "workspace:*",
+    "@studio/domain": "workspace:*"
+  }
+}

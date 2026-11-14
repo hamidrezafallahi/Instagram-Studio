@@ -1,0 +1,348 @@
+{
+  "id": "web-services",
+  "version": "1.0.0",
+  "name_fa": "خدمات طراحی و برنامه‌نویسی",
+  "description_fa": "برای کسب‌وکارهایی که سایت، فروشگاه اینترنتی، سامانهٔ آموزشی یا هویت برند طراحی و اجرا می‌کنند.",
+  "is_generic": false,
+  "disclaimer_fa": "این بسته فقط الگوست و اطلاعات قطعی هیچ کسب‌وکار واقعی نیست. خدمات، نمونه‌کار و قیمت را خود مالک وارد می‌کند.",
+  "required_fields": [
+    {
+      "key": "services",
+      "label_fa": "خدمات واقعی",
+      "help_fa": "مثل فروشگاه اینترنتی، سایت آموزشگاهی، سایت شرکتی یا برندینگ؛ فقط آنچه واقعاً ارائه می‌دهید.",
+      "kind": "list",
+      "required": true
+    },
+    {
+      "key": "stacks",
+      "label_fa": "فناوری‌هایی که واقعاً با آن‌ها کار می‌کنید",
+      "kind": "list",
+      "required": true
+    },
+    {
+      "key": "process",
+      "label_fa": "مراحل اجرای پروژه",
+      "help_fa": "از جلسهٔ اول تا تحویل و پشتیبانی.",
+      "kind": "long_text",
+      "required": true
+    },
+    {
+      "key": "portfolio",
+      "label_fa": "نمونه‌کارهای دارای اجازهٔ انتشار",
+      "help_fa": "فقط پروژه‌هایی که مشتری اجازهٔ نمایش آن‌ها را داده است.",
+      "kind": "long_text",
+      "required": false
+    },
+    {
+      "key": "price_range",
+      "label_fa": "محدودهٔ قیمت و زمان",
+      "help_fa": "اگر قیمت به دامنهٔ کار بستگی دارد همین را بنویسید.",
+      "kind": "text",
+      "required": false
+    },
+    {
+      "key": "meeting",
+      "label_fa": "نحوهٔ برگزاری جلسه",
+      "kind": "text",
+      "required": true
+    }
+  ],
+  "content_pillars": [
+    {
+      "id": "customer_problem",
+      "title_fa": "حل مسئلهٔ مشتری",
+      "description_fa": "یک مشکل واقعی مخاطب و راه فکرکردن دربارهٔ آن.",
+      "formats": [
+        "post",
+        "carousel",
+        "reel",
+        "story",
+        "text_post",
+        "article"
+      ],
+      "angles_fa": [
+        "پیش از سفارش {offer} چه چیزهایی را باید روشن کنید؟",
+        "چرا {audience} در {offer} به نتیجهٔ دلخواه نمی‌رسند؟",
+        "{offer}: از کجا شروع کنیم؟"
+      ],
+      "source_fields": [],
+      "requires_evidence": false
+    },
+    {
+      "id": "before_after",
+      "title_fa": "قبل و بعد واقعی",
+      "description_fa": "مقایسهٔ واقعی یک پروژه پیش و پس از کار؛ فقط با اجازهٔ مشتری.",
+      "formats": [
+        "carousel",
+        "reel",
+        "post"
+      ],
+      "angles_fa": [
+        "قبل و بعد یک پروژهٔ واقعی {offer}"
+      ],
+      "source_fields": [
+        "portfolio"
+      ],
+      "requires_evidence": true
+    },
+    {
+      "id": "process",
+      "title_fa": "فرایند اجرای پروژه",
+      "description_fa": "نشان‌دادن مراحل کار تا مخاطب بداند چه چیزی در انتظار اوست.",
+      "formats": [
+        "carousel",
+        "reel",
+        "story",
+        "text_post",
+        "article"
+      ],
+      "angles_fa": [
+        "یک پروژهٔ {offer} از جلسهٔ اول تا تحویل چه مراحلی دارد؟",
+        "در هر مرحله از {offer} از شما چه می‌خواهیم؟"
+      ],
+      "source_fields": [
+        "process",
+        "meeting"
+      ],
+      "requires_evidence": false
+    },
+    {
+      "id": "common_mistakes",
+      "title_fa": "اشتباه‌های رایج",
+      "description_fa": "اشتباه‌هایی که مخاطب پیش از سفارش یا هنگام اجرا مرتکب می‌شود.",
+      "formats": [
+        "reel",
+        "carousel",
+        "post",
+        "text_post",
+        "article"
+      ],
+      "angles_fa": [
+        "اشتباه‌های رایج در {offer} و راه پیشگیری از آن‌ها",
+        "چه چیزهایی را در {offer} نباید به بعد موکول کرد؟"
+      ],
+      "source_fields": [],
+      "requires_evidence": false
+    },
+    {
+      "id": "case_study",
+      "title_fa": "نمونه‌کار و case study",
+      "description_fa": "مسئله، رویکرد و نتیجهٔ یک پروژهٔ واقعی با اجازهٔ مشتری و عدد مستند.",
+      "formats": [
+        "carousel",
+        "text_post",
+        "article",
+        "reel"
+      ],
+      "angles_fa": [
+        "مسئله، رویکرد و نتیجه در یک پروژهٔ واقعی {offer}"
+      ],
+      "source_fields": [
+        "portfolio"
+      ],
+      "requires_evidence": true
+    },
+    {
+      "id": "service_intro",
+      "title_fa": "معرفی خدمت",
+      "description_fa": "خدمت برای چه کسی مناسب است و چه چیزی را شامل می‌شود.",
+      "formats": [
+        "post",
+        "carousel",
+        "story",
+        "text_post"
+      ],
+      "angles_fa": [
+        "{offer} برای چه کسب‌وکارهایی مناسب است؟",
+        "در {offer} دقیقاً چه چیزی تحویل می‌گیرید؟"
+      ],
+      "source_fields": [
+        "services",
+        "price_range",
+        "meeting"
+      ],
+      "requires_evidence": false
+    }
+  ],
+  "claims_policy": {
+    "summary_fa": "نمونه‌کار، نام مشتری یا عدد نتیجه بدون مدرک و اجازه ساخته نمی‌شود. تعهد قراردادی خارج از دانش ثبت‌شده به مالک ارجاع می‌شود.",
+    "rules": [
+      {
+        "id": "guarantee",
+        "label_fa": "وعدهٔ تضمینی",
+        "phrases": [
+          "تضمین",
+          "صددرصد",
+          "صد در صد",
+          "رتبهٔ یک گوگل",
+          "رتبه یک گوگل",
+          "بدون هیچ نقص"
+        ],
+        "action": "forbid"
+      },
+      {
+        "id": "result_number",
+        "label_fa": "عدد نتیجه یا رشد",
+        "phrases": [
+          "برابر شد",
+          "درصد افزایش",
+          "درصد رشد",
+          "افزایش فروش"
+        ],
+        "action": "needs_evidence"
+      },
+      {
+        "id": "client_name",
+        "label_fa": "نام‌بردن از مشتری یا پروژه",
+        "phrases": [
+          "برای شرکت",
+          "مشتری ما",
+          "پروژهٔ ما برای"
+        ],
+        "action": "needs_evidence"
+      },
+      {
+        "id": "contract_commitment",
+        "label_fa": "تعهد قراردادی یا مالی",
+        "phrases": [
+          "تعهد می‌دهیم",
+          "ضمانت بازگشت وجه",
+          "جریمهٔ تأخیر"
+        ],
+        "action": "escalate_to_owner"
+      }
+    ]
+  },
+  "faq_fields": [
+    {
+      "key": "faq_cost",
+      "label_fa": "هزینه چطور محاسبه می‌شود؟",
+      "kind": "long_text",
+      "required": false
+    },
+    {
+      "key": "faq_support",
+      "label_fa": "پشتیبانی پس از تحویل",
+      "kind": "long_text",
+      "required": false
+    },
+    {
+      "key": "faq_ownership",
+      "label_fa": "مالکیت کد و محتوا",
+      "kind": "long_text",
+      "required": false
+    },
+    {
+      "key": "faq_timeline",
+      "label_fa": "زمان اجرای معمول",
+      "kind": "text",
+      "required": false
+    }
+  ],
+  "cta_types": [
+    {
+      "id": "site_review",
+      "label_fa": "درخواست بررسی سایت",
+      "text_fa": "اگر می‌خواهید سایت فعلی‌تان را بررسی کنیم، همین‌جا پیام بدهید."
+    },
+    {
+      "id": "book_meeting",
+      "label_fa": "رزرو جلسه",
+      "text_fa": "برای هماهنگی جلسهٔ مشاوره پیام بدهید."
+    },
+    {
+      "id": "project_brief",
+      "label_fa": "تکمیل brief پروژه",
+      "text_fa": "برای شروع، فرم مشخصات پروژه را کامل کنید تا برآورد دقیق‌تری بدهیم."
+    }
+  ],
+  "kpi": [
+    {
+      "id": "qualified_lead",
+      "label_fa": "سرنخ واجد شرایط"
+    },
+    {
+      "id": "meeting",
+      "label_fa": "جلسه"
+    },
+    {
+      "id": "quote",
+      "label_fa": "پیشنهاد قیمت"
+    },
+    {
+      "id": "contract",
+      "label_fa": "قرارداد"
+    }
+  ],
+  "freshness_rules": [
+    {
+      "field": "price",
+      "max_age_days": 90,
+      "on_stale": "ask_owner",
+      "note_fa": "قیمت قدیمی به استعلام از مالک تبدیل می‌شود، نه عدد قطعی."
+    }
+  ],
+  "default_channels": [
+    "instagram",
+    "linkedin",
+    "website"
+  ],
+  "default_cadence": [
+    {
+      "weekday": "saturday",
+      "channel": "instagram",
+      "format": "story",
+      "pillar": "customer_problem",
+      "time": "18:00"
+    },
+    {
+      "weekday": "sunday",
+      "channel": "instagram",
+      "format": "reel",
+      "pillar": "common_mistakes",
+      "time": "19:00"
+    },
+    {
+      "weekday": "sunday",
+      "channel": "linkedin",
+      "format": "text_post",
+      "pillar": "common_mistakes",
+      "time": "09:30"
+    },
+    {
+      "weekday": "monday",
+      "channel": "instagram",
+      "format": "carousel",
+      "pillar": "process",
+      "time": "19:00"
+    },
+    {
+      "weekday": "tuesday",
+      "channel": "website",
+      "format": "article",
+      "pillar": "customer_problem",
+      "time": "10:00"
+    },
+    {
+      "weekday": "wednesday",
+      "channel": "instagram",
+      "format": "post",
+      "pillar": "service_intro",
+      "time": "19:00"
+    },
+    {
+      "weekday": "wednesday",
+      "channel": "linkedin",
+      "format": "text_post",
+      "pillar": "process",
+      "time": "09:30"
+    },
+    {
+      "weekday": "thursday",
+      "channel": "instagram",
+      "format": "reel",
+      "pillar": "customer_problem",
+      "time": "19:00"
+    }
+  ]
+}

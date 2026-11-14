@@ -1,0 +1,19 @@
+{
+  "name": "@studio/data",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PostgreSQL: migration، تراکنش با RLS و مخزن‌ها",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@studio/contracts": "workspace:*",
+    "@studio/domain": "workspace:*",
+    "@studio/security": "workspace:*",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@types/pg": "catalog:"
+  }
+}

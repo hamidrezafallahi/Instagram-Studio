@@ -1,0 +1,13 @@
+{
+  "name": "@studio/contracts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "قراردادهای هسته: schemaها، نوع‌ها، کدهای خطا، port کانکتور و جدول مسیرهای API",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  }
+}

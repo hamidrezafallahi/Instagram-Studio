@@ -1,0 +1,327 @@
+{
+  "id": "dental-loupes",
+  "version": "1.0.0",
+  "name_fa": "فروش لوپ دندان‌پزشکی",
+  "description_fa": "برای فروشندهٔ لوپ و تجهیزات بزرگ‌نمایی دندان‌پزشکی؛ همهٔ مشخصات فقط از کاتالوگ رسمی و SKU همان مدل.",
+  "is_generic": false,
+  "disclaimer_fa": "این بسته فقط الگوست. نام برند را مالک وارد می‌کند و اصالت یا نمایندگی فرض نمی‌شود. این بسته توصیهٔ پزشکی تولید نمی‌کند.",
+  "required_fields": [
+    {
+      "key": "catalog",
+      "label_fa": "کاتالوگ رسمی",
+      "help_fa": "نشانی یا فایل کاتالوگ سازنده که مشخصات از آن برداشته می‌شود.",
+      "kind": "url",
+      "required": true
+    },
+    {
+      "key": "models",
+      "label_fa": "مدل‌ها و SKU",
+      "kind": "list",
+      "required": true
+    },
+    {
+      "key": "specs",
+      "label_fa": "مشخصات دقیق هر مدل",
+      "help_fa": "فقط آنچه در کاتالوگ همان مدل آمده است.",
+      "kind": "long_text",
+      "required": true
+    },
+    {
+      "key": "images",
+      "label_fa": "تصاویر دارای اجازهٔ استفاده",
+      "kind": "long_text",
+      "required": true
+    },
+    {
+      "key": "stock_price",
+      "label_fa": "موجودی و قیمت معتبر",
+      "help_fa": "همراه با تاریخ آخرین بررسی.",
+      "kind": "long_text",
+      "required": true
+    },
+    {
+      "key": "warranty",
+      "label_fa": "ضمانت و خدمات پس از فروش",
+      "kind": "long_text",
+      "required": true
+    },
+    {
+      "key": "contact",
+      "label_fa": "راه تماس و مشاوره",
+      "kind": "text",
+      "required": true
+    }
+  ],
+  "content_pillars": [
+    {
+      "id": "model_intro",
+      "title_fa": "معرفی مدل",
+      "description_fa": "معرفی یک مدل فقط با مشخصات SKU همان مدل از منبع رسمی.",
+      "formats": [
+        "post",
+        "carousel",
+        "story"
+      ],
+      "angles_fa": [
+        "معرفی {offer} بر پایهٔ مشخصات کاتالوگ رسمی"
+      ],
+      "source_fields": [
+        "models",
+        "specs"
+      ],
+      "requires_evidence": true
+    },
+    {
+      "id": "selection_guide",
+      "title_fa": "راهنمای انتخاب",
+      "description_fa": "معیارهای انتخاب بر پایهٔ مشخصات تأییدشده؛ بدون توصیهٔ بالینی.",
+      "formats": [
+        "carousel",
+        "text_post",
+        "article",
+        "reel"
+      ],
+      "angles_fa": [
+        "هنگام انتخاب {offer} چه مشخصاتی را از کاتالوگ بپرسید؟",
+        "پرسش‌هایی که پیش از خرید {offer} باید از فروشنده بپرسید"
+      ],
+      "source_fields": [
+        "specs",
+        "catalog"
+      ],
+      "requires_evidence": true
+    },
+    {
+      "id": "usage_training",
+      "title_fa": "آموزش استفاده",
+      "description_fa": "راهنمای استفاده مطابق دستور سازنده.",
+      "formats": [
+        "reel",
+        "carousel",
+        "story"
+      ],
+      "angles_fa": [
+        "نکته‌های شروع کار با {offer} مطابق راهنمای سازنده"
+      ],
+      "source_fields": [
+        "catalog"
+      ],
+      "requires_evidence": true
+    },
+    {
+      "id": "maintenance",
+      "title_fa": "نگهداری",
+      "description_fa": "نگهداری و تمیزکاری مطابق دستور سازنده.",
+      "formats": [
+        "reel",
+        "carousel",
+        "post",
+        "story"
+      ],
+      "angles_fa": [
+        "نگهداری روزانهٔ {offer} مطابق دستور سازنده"
+      ],
+      "source_fields": [],
+      "requires_evidence": false
+    },
+    {
+      "id": "buying_faq",
+      "title_fa": "سؤال‌های خرید",
+      "description_fa": "پاسخ به پرسش‌های پرتکرار خرید، ضمانت و ارسال از سیاست مصوب.",
+      "formats": [
+        "story",
+        "post",
+        "carousel"
+      ],
+      "angles_fa": [
+        "پرسش‌های پرتکرار پیش از خرید {offer}",
+        "ضمانت و خدمات {offer} چه چیزهایی را پوشش می‌دهد؟"
+      ],
+      "source_fields": [
+        "warranty",
+        "stock_price",
+        "contact"
+      ],
+      "requires_evidence": false
+    }
+  ],
+  "claims_policy": {
+    "summary_fa": "هیچ عدد بزرگ‌نمایی، وزن، گواهی یا ادعای درمانی بدون سند ساخته نمی‌شود. نیاز بالینی یا ادعای کاهش آسیب به بازبینی متخصص یا مالک ارجاع می‌شود.",
+    "rules": [
+      {
+        "id": "spec_number",
+        "label_fa": "عدد مشخصات فنی",
+        "phrases": [
+          "بزرگ‌نمایی",
+          "بزرگنمایی",
+          "وزن",
+          "میلی‌متر",
+          "فاصلهٔ کاری",
+          "عمق میدان"
+        ],
+        "action": "needs_evidence"
+      },
+      {
+        "id": "certification",
+        "label_fa": "گواهی و تأییدیه",
+        "phrases": [
+          "گواهی",
+          "تأییدیه",
+          "استاندارد",
+          "FDA",
+          "CE"
+        ],
+        "action": "needs_evidence"
+      },
+      {
+        "id": "authenticity",
+        "label_fa": "اصالت و نمایندگی",
+        "phrases": [
+          "نمایندهٔ رسمی",
+          "نماینده رسمی",
+          "نمایندگی انحصاری",
+          "کالای اصل",
+          "اورجینال"
+        ],
+        "action": "needs_evidence"
+      },
+      {
+        "id": "medical",
+        "label_fa": "ادعای درمانی یا کاهش آسیب",
+        "phrases": [
+          "کاهش درد",
+          "درمان",
+          "پیشگیری از آسیب",
+          "بهبود درمان",
+          "کاهش گردن‌درد",
+          "ارگونومی تضمین"
+        ],
+        "action": "escalate_to_owner"
+      },
+      {
+        "id": "superlative",
+        "label_fa": "برتری مطلق و وعدهٔ تضمینی",
+        "phrases": [
+          "بهترین",
+          "تضمین",
+          "بی‌رقیب"
+        ],
+        "action": "forbid"
+      }
+    ]
+  },
+  "faq_fields": [
+    {
+      "key": "faq_warranty",
+      "label_fa": "شرایط ضمانت",
+      "kind": "long_text",
+      "required": false
+    },
+    {
+      "key": "faq_shipping",
+      "label_fa": "ارسال و تحویل",
+      "kind": "long_text",
+      "required": false
+    },
+    {
+      "key": "faq_fitting",
+      "label_fa": "تنظیم و اندازه‌گیری",
+      "kind": "long_text",
+      "required": false
+    }
+  ],
+  "cta_types": [
+    {
+      "id": "selection_consult",
+      "label_fa": "مشاورهٔ انتخاب محصول",
+      "text_fa": "برای مشاورهٔ انتخاب مدل مناسب پیام بدهید."
+    },
+    {
+      "id": "request_specs",
+      "label_fa": "درخواست مشخصات",
+      "text_fa": "برای دریافت مشخصات کامل از کاتالوگ رسمی پیام بدهید."
+    },
+    {
+      "id": "stock_inquiry",
+      "label_fa": "استعلام موجودی",
+      "text_fa": "برای استعلام موجودی و قیمت روز پیام بدهید."
+    }
+  ],
+  "kpi": [
+    {
+      "id": "qualified_inquiry",
+      "label_fa": "استعلام واجد شرایط"
+    },
+    {
+      "id": "consultation",
+      "label_fa": "مشاورهٔ انتخاب"
+    },
+    {
+      "id": "quote",
+      "label_fa": "پیش‌فاکتور"
+    },
+    {
+      "id": "order",
+      "label_fa": "سفارش"
+    }
+  ],
+  "freshness_rules": [
+    {
+      "field": "price",
+      "max_age_days": 14,
+      "on_stale": "ask_owner",
+      "note_fa": "قیمت کهنه به استعلام تبدیل می‌شود، نه پیشنهاد قطعی فروش."
+    },
+    {
+      "field": "availability",
+      "max_age_days": 7,
+      "on_stale": "ask_owner"
+    },
+    {
+      "field": "catalog",
+      "max_age_days": 180,
+      "on_stale": "ask_owner"
+    }
+  ],
+  "default_channels": [
+    "instagram",
+    "linkedin"
+  ],
+  "default_cadence": [
+    {
+      "weekday": "saturday",
+      "channel": "instagram",
+      "format": "story",
+      "pillar": "buying_faq",
+      "time": "18:00"
+    },
+    {
+      "weekday": "sunday",
+      "channel": "instagram",
+      "format": "post",
+      "pillar": "maintenance",
+      "time": "20:00"
+    },
+    {
+      "weekday": "tuesday",
+      "channel": "instagram",
+      "format": "carousel",
+      "pillar": "selection_guide",
+      "time": "20:00"
+    },
+    {
+      "weekday": "wednesday",
+      "channel": "linkedin",
+      "format": "text_post",
+      "pillar": "selection_guide",
+      "time": "09:30"
+    },
+    {
+      "weekday": "thursday",
+      "channel": "instagram",
+      "format": "reel",
+      "pillar": "maintenance",
+      "time": "20:00"
+    }
+  ]
+}

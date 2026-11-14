@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/CostQuote",
+  "$defs": {
+    "CostQuote": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+        },
+        "action": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+        },
+        "amount_min": {
+          "$ref": "#/$defs/Money"
+        },
+        "amount_max": {
+          "$ref": "#/$defs/Money"
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+        },
+        "source": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "free_quota_remaining": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "billing_mode": {
+          "type": "string",
+          "enum": [
+            "prepaid",
+            "postpaid",
+            "subscription",
+            "manual"
+          ]
+        }
+      },
+      "required": [
+        "provider",
+        "action",
+        "amount_min",
+        "amount_max",
+        "valid_until",
+        "source",
+        "free_quota_remaining",
+        "billing_mode"
+      ],
+      "additionalProperties": false,
+      "description": "برآورد هزینه با اعتبار زمانی و منبع"
+    },
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount_minor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "IRR",
+            "IRT",
+            "USD",
+            "EUR"
+          ]
+        }
+      },
+      "required": [
+        "amount_minor",
+        "currency"
+      ],
+      "additionalProperties": false,
+      "description": "مبلغ به واحد خرد (عدد صحیح) و ارز صریح"
+    }
+  }
+}

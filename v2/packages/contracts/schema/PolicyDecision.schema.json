@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/PolicyDecision",
+  "$defs": {
+    "PolicyDecision": {
+      "type": "object",
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "needs_approval",
+            "deny",
+            "needs_funds"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "reason_fa": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "policy_revision": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "scope_snapshot": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "decision",
+        "reason",
+        "reason_fa",
+        "policy_revision",
+        "scope_snapshot"
+      ],
+      "additionalProperties": false,
+      "description": "allow / needs_approval / deny / needs_funds با دلیل و نسخهٔ سیاست"
+    }
+  }
+}

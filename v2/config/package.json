@@ -1,0 +1,14 @@
+{
+  "name": "@studio/config",
+  "version": "0.1.0",
+  "private": true,
+  "description": "schema تنظیمات اجرا و بارگذاری بسته‌های صنعت",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@studio/contracts": "workspace:*",
+    "zod": "catalog:"
+  }
+}

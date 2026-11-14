@@ -1,0 +1,434 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/IndustryPack",
+  "$defs": {
+    "IndustryPack": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "name_fa": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "description_fa": {
+          "type": "string",
+          "maxLength": 600
+        },
+        "is_generic": {
+          "default": false,
+          "type": "boolean"
+        },
+        "disclaimer_fa": {
+          "type": "string",
+          "maxLength": 600
+        },
+        "required_fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              },
+              "label_fa": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "help_fa": {
+                "type": "string",
+                "maxLength": 400
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "text",
+                  "long_text",
+                  "list",
+                  "url"
+                ]
+              },
+              "required": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "key",
+              "label_fa",
+              "kind",
+              "required"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "content_pillars": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              },
+              "title_fa": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "description_fa": {
+                "type": "string",
+                "maxLength": 400
+              },
+              "formats": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "post",
+                    "carousel",
+                    "story",
+                    "reel",
+                    "trial_reel",
+                    "text_post",
+                    "document",
+                    "article",
+                    "message",
+                    "ad_creative"
+                  ]
+                }
+              },
+              "angles_fa": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                }
+              },
+              "source_fields": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+                }
+              },
+              "requires_evidence": {
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "title_fa",
+              "description_fa",
+              "formats",
+              "angles_fa",
+              "source_fields",
+              "requires_evidence"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "claims_policy": {
+          "type": "object",
+          "properties": {
+            "summary_fa": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+                  },
+                  "label_fa": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "phrases": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 2,
+                      "maxLength": 80
+                    }
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "forbid",
+                      "needs_evidence",
+                      "escalate_to_owner"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "label_fa",
+                  "phrases",
+                  "action"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "summary_fa",
+            "rules"
+          ],
+          "additionalProperties": false
+        },
+        "faq_fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              },
+              "label_fa": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "help_fa": {
+                "type": "string",
+                "maxLength": 400
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "text",
+                  "long_text",
+                  "list",
+                  "url"
+                ]
+              },
+              "required": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "key",
+              "label_fa",
+              "kind",
+              "required"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "cta_types": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              },
+              "label_fa": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "text_fa": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "required": [
+              "id",
+              "label_fa",
+              "text_fa"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "kpi": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              },
+              "label_fa": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              }
+            },
+            "required": [
+              "id",
+              "label_fa"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "freshness_rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "enum": [
+                  "price",
+                  "availability",
+                  "schedule",
+                  "catalog"
+                ]
+              },
+              "max_age_days": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "on_stale": {
+                "type": "string",
+                "enum": [
+                  "ask_owner",
+                  "omit",
+                  "block"
+                ]
+              },
+              "note_fa": {
+                "type": "string",
+                "maxLength": 300
+              }
+            },
+            "required": [
+              "field",
+              "max_age_days",
+              "on_stale"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "default_channels": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "instagram",
+              "linkedin",
+              "website",
+              "telegram",
+              "whatsapp",
+              "virgool",
+              "ads"
+            ]
+          }
+        },
+        "default_cadence": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "weekday": {
+                "type": "string",
+                "enum": [
+                  "saturday",
+                  "sunday",
+                  "monday",
+                  "tuesday",
+                  "wednesday",
+                  "thursday",
+                  "friday"
+                ]
+              },
+              "channel": {
+                "type": "string",
+                "enum": [
+                  "instagram",
+                  "linkedin",
+                  "website",
+                  "telegram",
+                  "whatsapp",
+                  "virgool",
+                  "ads"
+                ]
+              },
+              "format": {
+                "type": "string",
+                "enum": [
+                  "post",
+                  "carousel",
+                  "story",
+                  "reel",
+                  "trial_reel",
+                  "text_post",
+                  "document",
+                  "article",
+                  "message",
+                  "ad_creative"
+                ]
+              },
+              "pillar": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              },
+              "time": {
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              }
+            },
+            "required": [
+              "weekday",
+              "channel",
+              "format",
+              "pillar",
+              "time"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "name_fa",
+        "description_fa",
+        "is_generic",
+        "disclaimer_fa",
+        "required_fields",
+        "content_pillars",
+        "claims_policy",
+        "faq_fields",
+        "cta_types",
+        "kpi",
+        "freshness_rules",
+        "default_channels",
+        "default_cadence"
+      ],
+      "additionalProperties": false,
+      "description": "بستهٔ دادهٔ صنعت؛ افزودن صنعت تازه فقط با دادهٔ pack"
+    }
+  }
+}

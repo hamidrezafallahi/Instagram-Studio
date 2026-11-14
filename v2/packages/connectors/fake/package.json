@@ -1,0 +1,17 @@
+{
+  "name": "@studio/connector-fake",
+  "version": "0.1.0",
+  "private": true,
+  "description": "کانکتور نمونه برای دمو و آزمون قرارداد؛ هرگز گواه اتصال واقعی نیست",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@studio/contracts": "workspace:*",
+    "@studio/connectors": "workspace:*"
+  },
+  "devDependencies": {
+    "@studio/config": "workspace:*"
+  }
+}

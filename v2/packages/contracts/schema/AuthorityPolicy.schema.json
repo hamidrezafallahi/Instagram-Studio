@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/AuthorityPolicy",
+  "$defs": {
+    "AuthorityPolicy": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "draft_only",
+            "review_required",
+            "auto_scoped"
+          ]
+        },
+        "rules": {
+          "maxItems": 100,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              },
+              "channel": {
+                "type": "string",
+                "enum": [
+                  "instagram",
+                  "linkedin",
+                  "website",
+                  "telegram",
+                  "whatsapp",
+                  "virgool",
+                  "ads"
+                ]
+              },
+              "action_type": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "draft_only",
+                  "review_required",
+                  "auto_scoped"
+                ]
+              },
+              "window": {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "saturday",
+                        "sunday",
+                        "monday",
+                        "tuesday",
+                        "wednesday",
+                        "thursday",
+                        "friday"
+                      ]
+                    }
+                  },
+                  "start": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "end": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  }
+                },
+                "required": [
+                  "days",
+                  "start",
+                  "end"
+                ],
+                "additionalProperties": false
+              },
+              "max_per_day": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "approved_topics": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                }
+              }
+            },
+            "required": [
+              "id",
+              "action_type",
+              "mode"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "spend_mode": {
+          "type": "string",
+          "enum": [
+            "free_only",
+            "permitted_paid"
+          ]
+        },
+        "paused": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "mode",
+        "rules",
+        "spend_mode",
+        "paused"
+      ],
+      "additionalProperties": false,
+      "description": "سیاست اختیار نسخه‌دار هر برند"
+    }
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/ConnectorResult",
+  "$defs": {
+    "ConnectorResult": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "succeeded",
+            "accepted",
+            "failed",
+            "unknown",
+            "manual_required"
+          ]
+        },
+        "external_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "external_url": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2048
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "provider_request_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retry_after": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "error_code": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "AUTH_EXPIRED",
+                "RATE_LIMITED",
+                "QUOTA_EXHAUSTED",
+                "PAYMENT_REQUIRED",
+                "INVALID_MEDIA",
+                "POLICY_DENIED",
+                "PROVIDER_UNAVAILABLE",
+                "UNKNOWN_OUTCOME",
+                "STALE_REVISION",
+                "UNSUPPORTED_CAPABILITY",
+                "VALIDATION_FAILED",
+                "UNAUTHENTICATED",
+                "FORBIDDEN",
+                "CSRF_FAILED",
+                "NOT_FOUND",
+                "CONFLICT",
+                "IDEMPOTENCY_KEY_REUSED",
+                "INVALID_TRANSITION",
+                "CROSS_BRAND_REFERENCE",
+                "SETUP_ALREADY_COMPLETED",
+                "BRAND_NOT_READY",
+                "NOT_IMPLEMENTED",
+                "INTERNAL"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cost_actual": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 512
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "external_id",
+        "external_url",
+        "provider_request_id",
+        "retry_after",
+        "error_code",
+        "cost_actual",
+        "evidence_ref"
+      ],
+      "additionalProperties": false,
+      "description": "نتیجهٔ یکسان همهٔ کانکتورها؛ accepted یعنی هنوز منتشر نشده"
+    },
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount_minor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "IRR",
+            "IRT",
+            "USD",
+            "EUR"
+          ]
+        }
+      },
+      "required": [
+        "amount_minor",
+        "currency"
+      ],
+      "additionalProperties": false,
+      "description": "مبلغ به واحد خرد (عدد صحیح) و ارز صریح"
+    }
+  }
+}

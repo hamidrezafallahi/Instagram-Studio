@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/ConnectorManifest",
+  "$defs": {
+    "ConnectorManifest": {
+      "type": "object",
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+        },
+        "title_fa": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "auth_kind": {
+          "type": "string",
+          "enum": [
+            "none",
+            "oauth2",
+            "bot_token",
+            "application_password",
+            "api_key",
+            "browser_session",
+            "manual"
+          ]
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              },
+              "title_fa": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "verified",
+                  "needs_access",
+                  "manual_only",
+                  "unsupported",
+                  "unverified",
+                  "degraded"
+                ]
+              },
+              "reason_code": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "fallback_fa": {
+                "type": "string",
+                "maxLength": 400
+              }
+            },
+            "required": [
+              "action",
+              "title_fa",
+              "status",
+              "reason_code",
+              "fallback_fa"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "cost_model": {
+          "type": "string",
+          "enum": [
+            "free",
+            "free_quota",
+            "paid",
+            "unknown"
+          ]
+        },
+        "docs_url": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 1024
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "checked_at": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        },
+        "is_sample": {
+          "type": "boolean"
+        },
+        "implemented": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "provider_id",
+        "title_fa",
+        "auth_kind",
+        "capabilities",
+        "cost_model",
+        "docs_url",
+        "checked_at",
+        "is_sample",
+        "implemented"
+      ],
+      "additionalProperties": false,
+      "description": "شناسنامهٔ هر adapter"
+    }
+  }
+}

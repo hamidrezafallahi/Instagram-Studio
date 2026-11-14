@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": [
+    "apps/api/src",
+    "apps/worker/src",
+    "packages/*/src",
+    "packages/*/scripts",
+    "packages/connectors/*/src",
+    "agents/src",
+    "workflows/src",
+    "config/src",
+    "config/scripts",
+    "infra/local",
+    "scripts",
+    "tests"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "apps/dashboard"
+  ]
+}

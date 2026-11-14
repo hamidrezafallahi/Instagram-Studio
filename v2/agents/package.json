@@ -1,0 +1,19 @@
+{
+  "name": "@studio/agents",
+  "version": "0.1.0",
+  "private": true,
+  "description": "نقش‌های هوشمند با قرارداد ورودی/خروجی و بدون حق ارسال مستقیم",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@studio/ai": "workspace:*",
+    "@studio/contracts": "workspace:*",
+    "@studio/domain": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@studio/config": "workspace:*"
+  }
+}

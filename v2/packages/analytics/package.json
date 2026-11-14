@@ -1,0 +1,13 @@
+{
+  "name": "@studio/analytics",
+  "version": "0.1.0",
+  "private": true,
+  "description": "نرمال‌سازی سنجه و ساخت گزارش",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@studio/contracts": "workspace:*"
+  }
+}

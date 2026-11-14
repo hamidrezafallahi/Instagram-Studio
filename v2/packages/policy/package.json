@@ -1,0 +1,13 @@
+{
+  "name": "@studio/policy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "موتور سیاست اختیار مستقل از مدل زبانی",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@studio/contracts": "workspace:*"
+  }
+}

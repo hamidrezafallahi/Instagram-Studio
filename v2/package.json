@@ -1,0 +1,41 @@
+{
+  "name": "content-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "استودیو محتوای برند — هستهٔ ماژولار (API، worker، داشبورد فارسی)",
+  "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=26.4.0 <27"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json && tsc -p apps/dashboard/tsconfig.json",
+    "contracts:generate": "node packages/contracts/scripts/generate.ts",
+    "contracts:check": "node packages/contracts/scripts/generate.ts --check",
+    "db:start": "node infra/local/cli.ts db:start",
+    "db:stop": "node infra/local/cli.ts db:stop",
+    "db:status": "node infra/local/cli.ts db:status",
+    "db:migrate": "node infra/local/cli.ts db:migrate",
+    "db:seed": "node infra/local/cli.ts db:seed",
+    "dev": "node infra/local/cli.ts dev",
+    "build": "pnpm --filter @studio/dashboard build",
+    "start": "node infra/local/cli.ts start",
+    "test": "node scripts/run-tests.ts",
+    "test:unit": "node scripts/run-tests.ts --unit",
+    "acceptance": "node scripts/run-tests.ts --acceptance"
+  },
+  "dependencies": {
+    "@studio/config": "workspace:*",
+    "@studio/contracts": "workspace:*",
+    "@studio/data": "workspace:*",
+    "@studio/orchestration": "workspace:*",
+    "@studio/security": "workspace:*",
+    "embedded-postgres": "catalog:",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "typescript": "catalog:"
+  }
+}

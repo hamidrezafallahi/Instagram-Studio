@@ -1,0 +1,24 @@
+{
+  "name": "@studio/orchestration",
+  "version": "0.1.0",
+  "private": true,
+  "description": "سرویس‌های کاربردی و اجرای پایدار گردش‌کار",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@studio/agents": "workspace:*",
+    "@studio/ai": "workspace:*",
+    "@studio/analytics": "workspace:*",
+    "@studio/config": "workspace:*",
+    "@studio/connector-fake": "workspace:*",
+    "@studio/connectors": "workspace:*",
+    "@studio/contracts": "workspace:*",
+    "@studio/data": "workspace:*",
+    "@studio/domain": "workspace:*",
+    "@studio/policy": "workspace:*",
+    "@studio/security": "workspace:*",
+    "@studio/workflows": "workspace:*"
+  }
+}

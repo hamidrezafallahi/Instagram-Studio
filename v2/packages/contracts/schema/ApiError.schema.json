@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/ApiError",
+  "$defs": {
+    "ApiError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "AUTH_EXPIRED",
+                "RATE_LIMITED",
+                "QUOTA_EXHAUSTED",
+                "PAYMENT_REQUIRED",
+                "INVALID_MEDIA",
+                "POLICY_DENIED",
+                "PROVIDER_UNAVAILABLE",
+                "UNKNOWN_OUTCOME",
+                "STALE_REVISION",
+                "UNSUPPORTED_CAPABILITY",
+                "VALIDATION_FAILED",
+                "UNAUTHENTICATED",
+                "FORBIDDEN",
+                "CSRF_FAILED",
+                "NOT_FOUND",
+                "CONFLICT",
+                "IDEMPOTENCY_KEY_REUSED",
+                "INVALID_TRANSITION",
+                "CROSS_BRAND_REFERENCE",
+                "SETUP_ALREADY_COMPLETED",
+                "BRAND_NOT_READY",
+                "NOT_IMPLEMENTED",
+                "INTERNAL"
+              ]
+            },
+            "message_fa": {
+              "type": "string"
+            },
+            "retryable": {
+              "type": "boolean"
+            },
+            "trace_id": {
+              "type": "string"
+            },
+            "action_required": {
+              "type": "string"
+            },
+            "details": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "message"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "code",
+            "message_fa",
+            "retryable",
+            "trace_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "error"
+      ],
+      "additionalProperties": false,
+      "description": "قالب یکسان خطا در همهٔ مسیرها"
+    }
+  }
+}

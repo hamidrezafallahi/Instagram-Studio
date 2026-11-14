@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/CapabilityRegister",
+  "$defs": {
+    "CapabilityRegister": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string"
+        },
+        "generated_from": {
+          "type": "string"
+        },
+        "checked_at": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        },
+        "entries": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CapabilityRegisterEntry"
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "generated_from",
+        "checked_at",
+        "entries"
+      ],
+      "additionalProperties": false,
+      "description": "ثبت قابلیت‌ها و مسیرهای جایگزین"
+    },
+    "CapabilityRegisterEntry": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+        },
+        "route": {
+          "type": "string",
+          "enum": [
+            "direct",
+            "zernio",
+            "postiz",
+            "manual",
+            "internal"
+          ]
+        },
+        "action": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+        },
+        "title_fa": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "needs_access",
+            "manual_only",
+            "unsupported",
+            "unverified",
+            "degraded"
+          ]
+        },
+        "reason_code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "doc_evidence": {
+          "type": "object",
+          "properties": {
+            "supported": {
+              "type": "string",
+              "enum": [
+                "yes",
+                "partial",
+                "no",
+                "unknown"
+              ]
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^S\\d{2}$"
+              }
+            },
+            "urls": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 1024
+              }
+            },
+            "checked_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "checked_by": {
+              "type": "string",
+              "enum": [
+                "blueprint_research",
+                "builder",
+                "none"
+              ]
+            },
+            "api_version": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "supported",
+            "source_ids",
+            "urls",
+            "checked_at",
+            "checked_by",
+            "api_version"
+          ],
+          "additionalProperties": false
+        },
+        "account_evidence": {
+          "type": "object",
+          "properties": {
+            "verified": {
+              "type": "boolean"
+            },
+            "test_result": {
+              "type": "string",
+              "enum": [
+                "not_run",
+                "passed",
+                "failed"
+              ]
+            },
+            "tested_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "account_type": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scopes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "verified",
+            "test_result",
+            "tested_at",
+            "account_type",
+            "scopes"
+          ],
+          "additionalProperties": false
+        },
+        "cost_model": {
+          "type": "string",
+          "enum": [
+            "free",
+            "free_quota",
+            "paid",
+            "unknown"
+          ]
+        },
+        "fallback_fa": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "uncertainty_fa": {
+          "type": "string",
+          "maxLength": 600
+        },
+        "milestone": {
+          "type": "string",
+          "enum": [
+            "M1",
+            "M2",
+            "M3",
+            "M4",
+            "M5",
+            "M6",
+            "M7",
+            "M8"
+          ]
+        },
+        "next_review": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        }
+      },
+      "required": [
+        "provider",
+        "route",
+        "action",
+        "title_fa",
+        "status",
+        "reason_code",
+        "doc_evidence",
+        "account_evidence",
+        "cost_model",
+        "fallback_fa",
+        "uncertainty_fa",
+        "milestone",
+        "next_review"
+      ],
+      "additionalProperties": false,
+      "description": "یک ردیف ثبت قابلیت‌ها با مدرک و عدم قطعیت"
+    }
+  }
+}

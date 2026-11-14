@@ -1,0 +1,16 @@
+{
+  "name": "@studio/domain",
+  "version": "0.1.0",
+  "private": true,
+  "description": "موجودیت‌ها، ماشین حالت و قواعد ثابت دامنه (بدون SDK هیچ پلتفرم)",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@studio/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@studio/config": "workspace:*"
+  }
+}

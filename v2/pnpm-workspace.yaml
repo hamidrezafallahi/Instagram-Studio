@@ -1,0 +1,42 @@
+# فضای کاری استودیو محتوا. نسخه‌ها در catalog یک‌جا و دقیق قفل می‌شوند؛ جزئیات و مجوزها:
+# docs/implementation/DEPENDENCIES.md
+packages:
+  - apps/*
+  - packages/*
+  - packages/connectors/*
+  - agents
+  - workflows
+  - config
+  - tests
+
+# کنترل زنجیرهٔ تأمین: نسخه‌ای که کمتر از ۷ روز از انتشارش گذشته نصب نمی‌شود.
+minimumReleaseAge: 10080
+
+# نسخه‌های دقیق، بررسی‌شده در 2026-11-11 از registry.npmjs.org.
+catalog:
+  '@fastify/cookie': 11.1.5
+  '@types/node': 26.6.6
+  '@types/pg': 8.23.1
+  '@types/react': 19.3.0
+  '@types/react-dom': 19.3.0
+  embedded-postgres: 18.6.0-beta.19
+  fastify: 5.12.8
+  next: 16.4.5
+  pg: 8.23.1
+  react: 19.3.1
+  react-dom: 19.3.1
+  typescript: 7.0.2
+  zod: 4.6.7
+
+# sharp فقط برای بهینه‌سازی تصویر Next است و در این داشبورد استفاده نمی‌شود.
+ignoredOptionalDependencies:
+  - sharp
+
+# اسکریپت نصب فقط برای بسته‌های باینری PostgreSQL مجاز است. این اسکریپت (hydrate-symlinks.js)
+# بازبینی شد: تنها symlinkهای داخل همان بسته را از pg-symlinks.json بازسازی می‌کند.
+allowBuilds:
+  '@embedded-postgres/windows-x64': true
+  '@embedded-postgres/linux-x64': true
+  '@embedded-postgres/linux-arm64': true
+  '@embedded-postgres/darwin-arm64': true
+  '@embedded-postgres/darwin-x64': true

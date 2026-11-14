@@ -1,0 +1,481 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "#/$defs/BrandProfile",
+  "$defs": {
+    "BrandProfile": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "tagline": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "website_url": {
+              "type": "string",
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "industry_pack": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            }
+          },
+          "required": [
+            "id",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "locale": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$"
+        },
+        "content_locales": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$"
+          }
+        },
+        "timezone": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 64
+        },
+        "week_start": {
+          "type": "string",
+          "enum": [
+            "saturday",
+            "sunday",
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday"
+          ]
+        },
+        "offers": {
+          "maxItems": 200,
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Offer"
+          }
+        },
+        "audience": {
+          "type": "object",
+          "properties": {
+            "summary": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "segments": {
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              }
+            }
+          },
+          "required": [
+            "summary",
+            "segments"
+          ],
+          "additionalProperties": false
+        },
+        "voice": {
+          "type": "object",
+          "properties": {
+            "tone": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "rules": {
+              "maxItems": 30,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              }
+            },
+            "sample_texts": {
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 3000
+              }
+            }
+          },
+          "required": [
+            "tone",
+            "rules",
+            "sample_texts"
+          ],
+          "additionalProperties": false
+        },
+        "forbidden_claims": {
+          "maxItems": 50,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          }
+        },
+        "evidence": {
+          "maxItems": 200,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "url",
+                  "document",
+                  "owner_statement",
+                  "catalog"
+                ]
+              },
+              "url": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 1000
+              },
+              "checked_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "channels": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "enum": [
+              "instagram",
+              "linkedin",
+              "website",
+              "telegram",
+              "whatsapp",
+              "virgool",
+              "ads"
+            ]
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "goal_fa": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "formats": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "post",
+                    "carousel",
+                    "story",
+                    "reel",
+                    "trial_reel",
+                    "text_post",
+                    "document",
+                    "article",
+                    "message",
+                    "ad_creative"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "enabled"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "cadence": {
+          "maxItems": 60,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "weekday": {
+                "type": "string",
+                "enum": [
+                  "saturday",
+                  "sunday",
+                  "monday",
+                  "tuesday",
+                  "wednesday",
+                  "thursday",
+                  "friday"
+                ]
+              },
+              "channel": {
+                "type": "string",
+                "enum": [
+                  "instagram",
+                  "linkedin",
+                  "website",
+                  "telegram",
+                  "whatsapp",
+                  "virgool",
+                  "ads"
+                ]
+              },
+              "format": {
+                "type": "string",
+                "enum": [
+                  "post",
+                  "carousel",
+                  "story",
+                  "reel",
+                  "trial_reel",
+                  "text_post",
+                  "document",
+                  "article",
+                  "message",
+                  "ad_creative"
+                ]
+              },
+              "pillar": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              },
+              "time": {
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              }
+            },
+            "required": [
+              "weekday",
+              "channel",
+              "format",
+              "pillar",
+              "time"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "goals": {
+          "type": "object",
+          "properties": {
+            "monthly_goal_fa": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "kpis": {
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              }
+            }
+          },
+          "required": [
+            "kpis"
+          ],
+          "additionalProperties": false
+        },
+        "pack_fields": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 4000
+          }
+        },
+        "retention": {
+          "type": "object",
+          "properties": {
+            "message_text_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650
+            },
+            "raw_payload_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650
+            },
+            "audit_days": {
+              "type": "integer",
+              "minimum": 30,
+              "maximum": 3650
+            }
+          },
+          "required": [
+            "message_text_days",
+            "raw_payload_days",
+            "audit_days"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "identity",
+        "industry_pack",
+        "locale",
+        "content_locales",
+        "timezone",
+        "week_start",
+        "offers",
+        "audience",
+        "voice",
+        "forbidden_claims",
+        "evidence",
+        "channels",
+        "cadence",
+        "goals",
+        "pack_fields",
+        "retention"
+      ],
+      "additionalProperties": false,
+      "description": "سند نسخه‌دار تنظیمات برند؛ بدون راز"
+    },
+    "Offer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "service",
+            "product",
+            "course",
+            "other"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "sku": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "price": {
+          "$ref": "#/$defs/Money"
+        },
+        "price_checked_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+        },
+        "availability": {
+          "type": "string",
+          "enum": [
+            "available",
+            "limited",
+            "unavailable",
+            "unknown"
+          ]
+        },
+        "evidence_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+        },
+        "is_sample": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "kind"
+      ],
+      "additionalProperties": false,
+      "description": "خدمت، کالا یا دورهٔ قابل ارائهٔ برند"
+    },
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount_minor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "IRR",
+            "IRT",
+            "USD",
+            "EUR"
+          ]
+        }
+      },
+      "required": [
+        "amount_minor",
+        "currency"
+      ],
+      "additionalProperties": false,
+      "description": "مبلغ به واحد خرد (عدد صحیح) و ارز صریح"
+    }
+  }
+}

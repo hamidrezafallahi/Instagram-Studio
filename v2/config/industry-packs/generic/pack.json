@@ -1,0 +1,251 @@
+{
+  "id": "generic",
+  "version": "1.0.0",
+  "name_fa": "عمومی (هر کسب‌وکار دیگر)",
+  "description_fa": "بستهٔ بدون فرض صنعتی برای برند پنجم و بعد از آن؛ همهٔ ستون‌ها، CTAها و قواعد پس از ساخت قابل ویرایش‌اند.",
+  "is_generic": true,
+  "disclaimer_fa": "این بسته هیچ دانش صنعتی ندارد. از نام برند به‌تنهایی دانش دقیق انتظار نداشته باشید؛ خدمات، مخاطب و منابع را خودتان وارد کنید.",
+  "required_fields": [
+    {
+      "key": "what_you_sell",
+      "label_fa": "چه خدمت یا کالایی ارائه می‌دهید؟",
+      "kind": "long_text",
+      "required": true
+    },
+    {
+      "key": "how_to_order",
+      "label_fa": "مشتری چطور سفارش می‌دهد یا تماس می‌گیرد؟",
+      "kind": "text",
+      "required": true
+    },
+    {
+      "key": "differentiation",
+      "label_fa": "تمایز واقعی شما",
+      "help_fa": "فقط آنچه می‌توانید با مدرک نشان دهید.",
+      "kind": "long_text",
+      "required": false
+    }
+  ],
+  "content_pillars": [
+    {
+      "id": "education",
+      "title_fa": "آموزش و راهنما",
+      "description_fa": "پاسخ به یک پرسش واقعی مخاطب.",
+      "formats": [
+        "post",
+        "carousel",
+        "reel",
+        "story",
+        "text_post",
+        "article"
+      ],
+      "angles_fa": [
+        "پیش از انتخاب {offer} چه چیزهایی را بدانیم؟",
+        "اشتباه‌های رایج دربارهٔ {offer}"
+      ],
+      "source_fields": [],
+      "requires_evidence": false
+    },
+    {
+      "id": "offer_intro",
+      "title_fa": "معرفی خدمت یا محصول",
+      "description_fa": "چه چیزی ارائه می‌شود و برای چه کسی مناسب است.",
+      "formats": [
+        "post",
+        "carousel",
+        "story",
+        "text_post"
+      ],
+      "angles_fa": [
+        "{offer} برای چه کسی مناسب است؟"
+      ],
+      "source_fields": [
+        "what_you_sell",
+        "how_to_order"
+      ],
+      "requires_evidence": false
+    },
+    {
+      "id": "behind_scenes",
+      "title_fa": "پشت‌صحنه و فرایند",
+      "description_fa": "نمایش واقعی کار روزانه.",
+      "formats": [
+        "reel",
+        "story",
+        "post"
+      ],
+      "angles_fa": [
+        "یک روز کاری ما در {offer}"
+      ],
+      "source_fields": [],
+      "requires_evidence": false
+    },
+    {
+      "id": "faq",
+      "title_fa": "پرسش‌های پرتکرار",
+      "description_fa": "پاسخ از دانش تأییدشدهٔ برند.",
+      "formats": [
+        "story",
+        "post",
+        "carousel"
+      ],
+      "angles_fa": [
+        "پرسش‌های پرتکرار دربارهٔ {offer}"
+      ],
+      "source_fields": [
+        "faq_price",
+        "faq_delivery",
+        "how_to_order"
+      ],
+      "requires_evidence": false
+    },
+    {
+      "id": "proof",
+      "title_fa": "نمونه و تجربهٔ واقعی",
+      "description_fa": "نمونه‌کار یا تجربهٔ مشتری فقط با مدرک و رضایت.",
+      "formats": [
+        "carousel",
+        "reel",
+        "post"
+      ],
+      "angles_fa": [
+        "یک نمونهٔ واقعی از {offer}"
+      ],
+      "source_fields": [],
+      "requires_evidence": true
+    }
+  ],
+  "claims_policy": {
+    "summary_fa": "وعدهٔ تضمینی ساخته نمی‌شود. عدد نتیجه و نام مشتری به مدرک نیاز دارد. قیمت و تخفیف به مالک ارجاع می‌شود.",
+    "rules": [
+      {
+        "id": "guarantee",
+        "label_fa": "وعدهٔ تضمینی",
+        "phrases": [
+          "تضمین",
+          "صددرصد",
+          "صد در صد",
+          "بهترین"
+        ],
+        "action": "forbid"
+      },
+      {
+        "id": "result_number",
+        "label_fa": "عدد نتیجه",
+        "phrases": [
+          "برابر شد",
+          "درصد افزایش",
+          "درصد رشد"
+        ],
+        "action": "needs_evidence"
+      },
+      {
+        "id": "discount",
+        "label_fa": "تخفیف و قیمت ویژه",
+        "phrases": [
+          "تخفیف",
+          "قیمت ویژه",
+          "رایگان"
+        ],
+        "action": "escalate_to_owner"
+      }
+    ]
+  },
+  "faq_fields": [
+    {
+      "key": "faq_price",
+      "label_fa": "قیمت چطور تعیین می‌شود؟",
+      "kind": "long_text",
+      "required": false
+    },
+    {
+      "key": "faq_delivery",
+      "label_fa": "زمان و شیوهٔ تحویل",
+      "kind": "long_text",
+      "required": false
+    }
+  ],
+  "cta_types": [
+    {
+      "id": "contact",
+      "label_fa": "تماس",
+      "text_fa": "برای اطلاعات بیشتر پیام بدهید."
+    },
+    {
+      "id": "learn_more",
+      "label_fa": "اطلاعات بیشتر",
+      "text_fa": "جزئیات بیشتر در لینک پروفایل."
+    },
+    {
+      "id": "request_quote",
+      "label_fa": "درخواست برآورد",
+      "text_fa": "برای دریافت برآورد، نیازتان را در پیام بنویسید."
+    }
+  ],
+  "kpi": [
+    {
+      "id": "qualified_lead",
+      "label_fa": "سرنخ واجد شرایط"
+    },
+    {
+      "id": "meeting",
+      "label_fa": "جلسه یا تماس"
+    },
+    {
+      "id": "order",
+      "label_fa": "سفارش یا قرارداد"
+    }
+  ],
+  "freshness_rules": [
+    {
+      "field": "price",
+      "max_age_days": 30,
+      "on_stale": "ask_owner"
+    },
+    {
+      "field": "availability",
+      "max_age_days": 14,
+      "on_stale": "ask_owner"
+    }
+  ],
+  "default_channels": [
+    "instagram"
+  ],
+  "default_cadence": [
+    {
+      "weekday": "saturday",
+      "channel": "instagram",
+      "format": "story",
+      "pillar": "faq",
+      "time": "18:00"
+    },
+    {
+      "weekday": "sunday",
+      "channel": "instagram",
+      "format": "post",
+      "pillar": "education",
+      "time": "19:00"
+    },
+    {
+      "weekday": "tuesday",
+      "channel": "instagram",
+      "format": "carousel",
+      "pillar": "education",
+      "time": "19:00"
+    },
+    {
+      "weekday": "wednesday",
+      "channel": "instagram",
+      "format": "post",
+      "pillar": "offer_intro",
+      "time": "19:00"
+    },
+    {
+      "weekday": "thursday",
+      "channel": "instagram",
+      "format": "reel",
+      "pillar": "behind_scenes",
+      "time": "19:00"
+    }
+  ]
+}

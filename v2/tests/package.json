@@ -1,0 +1,28 @@
+{
+  "name": "@studio/tests",
+  "version": "0.1.0",
+  "private": true,
+  "description": "آزمون‌های integration و پذیرش",
+  "type": "module",
+  "dependencies": {
+    "@studio/contracts": "workspace:*",
+    "@studio/domain": "workspace:*",
+    "@studio/data": "workspace:*",
+    "@studio/security": "workspace:*",
+    "@studio/config": "workspace:*",
+    "@studio/connectors": "workspace:*",
+    "@studio/connector-fake": "workspace:*",
+    "@studio/orchestration": "workspace:*",
+    "@studio/api": "workspace:*",
+    "@studio/policy": "workspace:*",
+    "@studio/ai": "workspace:*",
+    "@studio/agents": "workspace:*",
+    "@studio/workflows": "workspace:*",
+    "@studio/analytics": "workspace:*",
+    "pg": "catalog:",
+    "fastify": "catalog:"
+  },
+  "devDependencies": {
+    "@types/pg": "catalog:"
+  }
+}

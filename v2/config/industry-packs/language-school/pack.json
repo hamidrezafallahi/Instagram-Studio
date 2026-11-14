@@ -1,0 +1,342 @@
+{
+  "id": "language-school",
+  "version": "1.0.0",
+  "name_fa": "آموزشگاه زبان",
+  "description_fa": "برای آموزشگاه‌های زبان با دوره‌های حضوری یا آنلاین؛ تاریخ دوره، شهریه و ظرفیت فقط از تقویم معتبر.",
+  "is_generic": false,
+  "disclaimer_fa": "این بسته فقط الگوست. نمره، صدای کلاس و اطلاعات زبان‌آموزان وارد تولید محتوا نمی‌شود مگر با مجوز صریح.",
+  "required_fields": [
+    {
+      "key": "languages",
+      "label_fa": "زبان‌ها",
+      "help_fa": "مثل انگلیسی، آلمانی، فرانسوی یا ایتالیایی؛ فقط زبان‌هایی که دورهٔ فعال دارند.",
+      "kind": "list",
+      "required": true
+    },
+    {
+      "key": "levels",
+      "label_fa": "سطح‌ها",
+      "kind": "list",
+      "required": true
+    },
+    {
+      "key": "course_calendar",
+      "label_fa": "تقویم دوره‌ها",
+      "help_fa": "تاریخ شروع، روزها و ساعت هر دوره.",
+      "kind": "long_text",
+      "required": true
+    },
+    {
+      "key": "teachers",
+      "label_fa": "مدرس‌های تأییدشده",
+      "help_fa": "فقط مدرس‌هایی که با معرفی‌شدن موافق‌اند.",
+      "kind": "long_text",
+      "required": false
+    },
+    {
+      "key": "tuition",
+      "label_fa": "شهریه",
+      "help_fa": "همراه با تاریخ اعتبار.",
+      "kind": "long_text",
+      "required": true
+    },
+    {
+      "key": "capacity",
+      "label_fa": "ظرفیت هر دوره",
+      "kind": "long_text",
+      "required": true
+    },
+    {
+      "key": "online_mode",
+      "label_fa": "شیوهٔ برگزاری آنلاین",
+      "kind": "text",
+      "required": false
+    },
+    {
+      "key": "enrollment_link",
+      "label_fa": "لینک ثبت‌نام",
+      "kind": "url",
+      "required": true
+    }
+  ],
+  "content_pillars": [
+    {
+      "id": "language_tip",
+      "title_fa": "نکتهٔ آموزشی",
+      "description_fa": "یک نکتهٔ کوتاه و درست زبانی که با مدرس یا منبع معتبر بازبینی می‌شود.",
+      "formats": [
+        "reel",
+        "post",
+        "story",
+        "carousel"
+      ],
+      "angles_fa": [
+        "یک نکتهٔ کاربردی برای زبان‌آموزان {offer}",
+        "اشتباه رایج زبان‌آموزان در {offer} و شکل درست آن"
+      ],
+      "source_fields": [],
+      "requires_evidence": false
+    },
+    {
+      "id": "short_exercise",
+      "title_fa": "تمرین کوتاه",
+      "description_fa": "تمرین چنددقیقه‌ای که مخاطب همان لحظه انجام می‌دهد.",
+      "formats": [
+        "story",
+        "reel",
+        "carousel"
+      ],
+      "angles_fa": [
+        "یک تمرین چنددقیقه‌ای برای {offer}"
+      ],
+      "source_fields": [],
+      "requires_evidence": false
+    },
+    {
+      "id": "course_intro",
+      "title_fa": "معرفی دوره",
+      "description_fa": "معرفی دوره با تاریخ واقعی، ظرفیت و لینک صحیح ثبت‌نام.",
+      "formats": [
+        "post",
+        "carousel",
+        "story"
+      ],
+      "angles_fa": [
+        "{offer}: برای چه کسی مناسب است و چطور برگزار می‌شود؟"
+      ],
+      "source_fields": [
+        "course_calendar",
+        "tuition",
+        "capacity",
+        "enrollment_link"
+      ],
+      "requires_evidence": true
+    },
+    {
+      "id": "study_method",
+      "title_fa": "روش مطالعه",
+      "description_fa": "روش‌های عملی مطالعه و تمرین، بدون وعدهٔ نتیجهٔ قطعی.",
+      "formats": [
+        "carousel",
+        "article",
+        "reel",
+        "post"
+      ],
+      "angles_fa": [
+        "چطور برای {offer} برنامهٔ مطالعهٔ هفتگی بچینیم؟",
+        "روش مرور و تمرین برای {audience}"
+      ],
+      "source_fields": [],
+      "requires_evidence": false
+    },
+    {
+      "id": "teacher_intro",
+      "title_fa": "معرفی مدرس",
+      "description_fa": "معرفی مدرس با موافقت خود او.",
+      "formats": [
+        "post",
+        "reel",
+        "story"
+      ],
+      "angles_fa": [
+        "با مدرس {offer} آشنا شوید"
+      ],
+      "source_fields": [
+        "teachers"
+      ],
+      "requires_evidence": true
+    },
+    {
+      "id": "student_story",
+      "title_fa": "تجربهٔ واقعی زبان‌آموز",
+      "description_fa": "روایت واقعی زبان‌آموز فقط با رضایت‌نامه.",
+      "formats": [
+        "reel",
+        "carousel",
+        "post"
+      ],
+      "angles_fa": [
+        "تجربهٔ یک زبان‌آموز از {offer}"
+      ],
+      "source_fields": [],
+      "requires_evidence": true
+    }
+  ],
+  "claims_policy": {
+    "summary_fa": "قول نمره، مهاجرت یا یادگیری تضمینی ساخته نمی‌شود. هر زبان با مدرس یا منبع معتبر بازبینی می‌شود.",
+    "rules": [
+      {
+        "id": "guarantee",
+        "label_fa": "وعدهٔ تضمینی",
+        "phrases": [
+          "تضمینی",
+          "تضمین",
+          "قبولی قطعی",
+          "صددرصد",
+          "صد در صد"
+        ],
+        "action": "forbid"
+      },
+      {
+        "id": "speed_promise",
+        "label_fa": "وعدهٔ زمان یادگیری",
+        "phrases": [
+          "در یک ماه مسلط",
+          "در سه ماه مسلط",
+          "بدون تمرین",
+          "فقط در چند روز"
+        ],
+        "action": "forbid"
+      },
+      {
+        "id": "score_promise",
+        "label_fa": "وعدهٔ نمرهٔ آزمون",
+        "phrases": [
+          "نمرهٔ ۷",
+          "نمره ۷",
+          "نمرهٔ تضمینی",
+          "قبولی در آزمون"
+        ],
+        "action": "forbid"
+      },
+      {
+        "id": "immigration",
+        "label_fa": "وعدهٔ مهاجرت یا ویزا",
+        "phrases": [
+          "مهاجرت",
+          "ویزا",
+          "اقامت"
+        ],
+        "action": "escalate_to_owner"
+      },
+      {
+        "id": "student_result",
+        "label_fa": "نتیجه یا نام زبان‌آموز",
+        "phrases": [
+          "زبان‌آموز ما",
+          "زبان‌آموزان ما",
+          "قبول شد"
+        ],
+        "action": "needs_evidence"
+      }
+    ]
+  },
+  "faq_fields": [
+    {
+      "key": "faq_placement",
+      "label_fa": "تعیین سطح چطور انجام می‌شود؟",
+      "kind": "long_text",
+      "required": false
+    },
+    {
+      "key": "faq_refund",
+      "label_fa": "شرایط انصراف",
+      "kind": "long_text",
+      "required": false
+    },
+    {
+      "key": "faq_makeup",
+      "label_fa": "جبران جلسهٔ غیبت",
+      "kind": "long_text",
+      "required": false
+    }
+  ],
+  "cta_types": [
+    {
+      "id": "placement_test",
+      "label_fa": "تعیین سطح",
+      "text_fa": "برای تعیین سطح رایگان پیام بدهید."
+    },
+    {
+      "id": "intro_session",
+      "label_fa": "جلسهٔ معرفی",
+      "text_fa": "برای شرکت در جلسهٔ معرفی دوره پیام بدهید."
+    },
+    {
+      "id": "enroll",
+      "label_fa": "ثبت‌نام",
+      "text_fa": "برای ثبت‌نام از لینک پروفایل استفاده کنید."
+    }
+  ],
+  "kpi": [
+    {
+      "id": "placement_request",
+      "label_fa": "درخواست تعیین سطح"
+    },
+    {
+      "id": "qualified_enrollment",
+      "label_fa": "ثبت‌نام واجد شرایط"
+    },
+    {
+      "id": "purchase_completed",
+      "label_fa": "تکمیل خرید"
+    }
+  ],
+  "freshness_rules": [
+    {
+      "field": "schedule",
+      "max_age_days": 14,
+      "on_stale": "ask_owner",
+      "note_fa": "تاریخ دورهٔ کهنه منتشر نمی‌شود."
+    },
+    {
+      "field": "price",
+      "max_age_days": 30,
+      "on_stale": "ask_owner"
+    },
+    {
+      "field": "availability",
+      "max_age_days": 7,
+      "on_stale": "ask_owner",
+      "note_fa": "ظرفیت دوره."
+    }
+  ],
+  "default_channels": [
+    "instagram",
+    "website"
+  ],
+  "default_cadence": [
+    {
+      "weekday": "saturday",
+      "channel": "instagram",
+      "format": "story",
+      "pillar": "short_exercise",
+      "time": "18:30"
+    },
+    {
+      "weekday": "sunday",
+      "channel": "instagram",
+      "format": "reel",
+      "pillar": "language_tip",
+      "time": "19:30"
+    },
+    {
+      "weekday": "monday",
+      "channel": "instagram",
+      "format": "carousel",
+      "pillar": "study_method",
+      "time": "19:30"
+    },
+    {
+      "weekday": "tuesday",
+      "channel": "website",
+      "format": "article",
+      "pillar": "study_method",
+      "time": "10:00"
+    },
+    {
+      "weekday": "wednesday",
+      "channel": "instagram",
+      "format": "post",
+      "pillar": "language_tip",
+      "time": "19:30"
+    },
+    {
+      "weekday": "thursday",
+      "channel": "instagram",
+      "format": "reel",
+      "pillar": "short_exercise",
+      "time": "19:30"
+    }
+  ]
+}
