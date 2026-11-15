@@ -17,6 +17,7 @@
     "db:status": "node infra/local/cli.ts db:status",
     "db:migrate": "node infra/local/cli.ts db:migrate",
     "db:seed": "node infra/local/cli.ts db:seed",
+    "brand:import": "node infra/local/cli.ts brand:import",
     "dev": "node infra/local/cli.ts dev",
     "build": "pnpm --filter @studio/dashboard build",
     "start": "node infra/local/cli.ts start",

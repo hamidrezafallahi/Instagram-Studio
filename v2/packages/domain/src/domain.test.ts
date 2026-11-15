@@ -169,6 +169,15 @@ describe('متن فارسی', () => {
     assert.ok(ids.includes('latin_punctuation'));
   });
 
+  it('قاعده‌های منتقل‌شده از linter قبلی (کشیده، رقم عربی، گیومه، هشتگ، واژهٔ اداری) کار می‌کنند', () => {
+    const ids = findTypographyIssues('خیلـی خوب ٢ "سایت" این طرح عالی می‌باشد #کسب‌وکار').map((issue) => issue.id);
+    for (const id of ['kashida', 'arabic_digits', 'straight_quotes', 'bureaucratic_words', 'hashtag_zwnj']) {
+      assert.ok(ids.includes(id), id);
+    }
+    // «برگردید» فعل عادی است و نباید واژهٔ اداری شمرده شود؛ هشتگ با «_» درست است.
+    assert.deepEqual(findTypographyIssues('به صفحهٔ قبل برگردید. #کسب_و_کار'), []);
+  });
+
   it('متن درست با نیم‌فاصله ایراد ندارد', () => {
     assert.deepEqual(findTypographyIssues('این کتاب‌ها خوانده می‌شود؛ درست است.'), []);
   });

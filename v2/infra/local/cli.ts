@@ -1,6 +1,6 @@
 /**
  * فرمان‌های پروفایل local.
- *   node infra/local/cli.ts db:start | db:stop | db:status | db:migrate | db:seed | dev | start
+ *   node infra/local/cli.ts db:start | db:stop | db:status | db:migrate | db:seed | brand:import [path] | dev | start
  * هیچ‌کدام رمز یا کلید را چاپ نمی‌کنند.
  */
 import { spawn, type ChildProcess } from 'node:child_process';
@@ -67,6 +67,42 @@ async function dbSeed(config: RuntimeConfig): Promise<void> {
       actor: { type: 'user', id: row.user_id, role: 'owner' },
     });
     say(`${brands.length} برند نمونه (با برچسب sample و بدون هیچ کلید واقعی) آماده است.`);
+  } finally {
+    await studio.close();
+  }
+}
+
+/**
+ * برند(های) واقعی را از config/brands (یا مسیر داده‌شده) در فضای کاری مالک می‌سازد یا به‌روز می‌کند.
+ * تکرارپذیر است؛ اگر سند تغییری نکرده باشد نسخهٔ تازه ساخته نمی‌شود. هیچ اتصال یا کلیدی نمی‌سازد.
+ */
+async function brandImport(config: RuntimeConfig, path: string | undefined): Promise<void> {
+  const { createStudioFromConfig, loadBrandSeeds } = await import('@studio/orchestration');
+  const seeds = loadBrandSeeds(path);
+  const studio = createStudioFromConfig({ config, databaseUrl: resolveDatabaseUrls(config).app });
+  try {
+    const owner = await studio.deps.db.identity((tx) =>
+      tx.query<{ workspace_id: string; user_id: string }>(
+        `SELECT workspace_id, user_id FROM memberships WHERE role = 'owner' ORDER BY created_at LIMIT 1`,
+      ),
+    );
+    const row = owner.rows[0];
+    if (!row) {
+      say('هنوز حساب مالک ساخته نشده است؛ ابتدا در داشبورد راه‌اندازی اولیه را انجام دهید و دوباره اجرا کنید.');
+      return;
+    }
+    const labels = { created: 'ساخته شد', updated: 'به‌روز شد', unchanged: 'بدون تغییر' } as const;
+    for (const { file, seed } of seeds) {
+      const result = await studio.brandImport.importSeed(
+        {
+          trace_id: 'cli-brand-import',
+          workspace_id: row.workspace_id,
+          actor: { type: 'user', id: row.user_id, role: 'owner' },
+        },
+        seed,
+      );
+      say(`«${seed.name}» ${labels[result.outcome]} (نسخهٔ ${result.revision}) ← ${file}`);
+    }
   } finally {
     await studio.close();
   }
@@ -155,12 +191,17 @@ async function main(): Promise<void> {
       await dbMigrate(config);
       await dbSeed(config);
       break;
+    case 'brand:import':
+      await dbStart(config);
+      await dbMigrate(config);
+      await brandImport(config, process.argv[3]);
+      break;
     case 'dev':
     case 'start':
       await runApps(config, command);
       break;
     default:
-      console.error('فرمان ناشناخته. گزینه‌ها: db:start، db:stop، db:status، db:migrate، db:seed، dev، start');
+      console.error('فرمان ناشناخته. گزینه‌ها: db:start، db:stop، db:status، db:migrate، db:seed، brand:import، dev، start');
       process.exitCode = 1;
   }
 }

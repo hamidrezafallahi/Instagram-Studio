@@ -6,4 +6,5 @@ Runtime config: local/server، storage، database، worker concurrency، model r
 feature flags به تفکیک برند؛ غیرفعال‌کردن channel باید jobs مربوط را pause کند.
 پیش‌فرض free_only، draft_only و sample_data=true در demo؛ production با sample-data banner واضح و تغییر آگاهانه.
 onboarding پس از انتخاب pack تمام فیلدها را قابل ویرایش کند؛ برند پنجم با pack عمومی بدون تغییر کد ساخته شود.
+برندهای واقعی به‌صورت داده در `config/brands/<slug>/brand.json` نگهداری و با `pnpm brand:import` وارد می‌شوند ([config/brands/README.md](brands/README.md)).
 پذیرش: تغییر تنظیمات نسخه‌دار، rollback و validation؛ راز در export تنظیمات وجود نداشته باشد.

@@ -14,6 +14,12 @@
 | M7 سئو، گزارش، ویرگول، بستهٔ تبلیغات و Canva | not_started | — | — | — | — | — | وابسته به M5 و M6 |
 | M8 سخت‌سازی، backup/restore، deployment و راهنمای کامل | not_started | — | — | — | — | — | وابسته به M7 |
 
+## انتقال برند از v1 (2026-11-15)
+- برند واقعی «حمیدرضا فلاحی | طراحی سایت» از `v1/` به `config/brands/hamidreza-falahi/brand.json` منتقل شد. ورود با `pnpm brand:import` انجام می‌شود (`packages/orchestration/src/brand-import.ts`، قرارداد `BrandSeed`).
+- قاعده‌های نگارشی linter قبلی به `findTypographyIssues` اضافه شد: کشیده، رقم عربی، گیومهٔ لاتین، نیم‌فاصله در هشتگ و واژهٔ اداری.
+- آزمون‌های تازه: `packages/orchestration/src/brand-import.test.ts`، `tests/integration/brand-import.test.ts` و یک مورد در `packages/domain/src/domain.test.ts`. نتیجه (اجرا توسط مالک در ترمینال، 2026-11-15): `pnpm typecheck` بدون خطا؛ `pnpm test` → **۱۷۲ از ۱۷۲ موفق**، صفر skip و صفر fail (۱۶۸ قبلی + ۴ تازه). محیط: Windows 11، Node 26.4.0، PostgreSQL توکار، کانکتور fake.
+- آنچه منتقل نشد و دلیلش: [config/brands/hamidreza-falahi/README.md](../../config/brands/hamidreza-falahi/README.md).
+
 ## تصمیم‌های باز (منتظر مالک؛ هیچ‌کدام ساخت را متوقف نکرده‌اند)
 | موضوع | پیش‌فرض فعلی | زمان نیاز |
 |---|---|---|

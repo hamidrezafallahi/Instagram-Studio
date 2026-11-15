@@ -97,6 +97,27 @@ export const BrandProfile = z
   .meta({ id: 'BrandProfile', description: 'سند نسخه‌دار تنظیمات برند؛ بدون راز' });
 export type BrandProfile = z.infer<typeof BrandProfile>;
 
+/**
+ * فایل ورود برند (config/brands/<slug>/brand.json). بخش‌های وابسته به بستهٔ صنعت
+ * (industry_pack، locale، content_locales، timezone و week_start) از سند اولیهٔ pack ساخته می‌شوند.
+ * بدون راز؛ فقط دادهٔ برند.
+ */
+export const BrandSeed = z.strictObject({
+  _note: z.string().max(2000).optional(),
+  name: z.string().min(1).max(120),
+  industry_pack_id: Slug,
+  timezone: IanaTimezone.optional(),
+  locale: Locale.optional(),
+  profile: BrandProfile.omit({
+    industry_pack: true,
+    locale: true,
+    content_locales: true,
+    timezone: true,
+    week_start: true,
+  }).partial(),
+});
+export type BrandSeed = z.infer<typeof BrandSeed>;
+
 /** حداقل اطلاعات برای ساخت draft: نام برند، خدمت، مخاطب و زبان (docs/product/README.md). */
 export const BrandReadiness = z.strictObject({
   draft_ready: z.boolean(),

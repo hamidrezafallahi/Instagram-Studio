@@ -6,6 +6,7 @@ import { StudioError, type IndustryPack, type IndustryPackSummary } from '@studi
 import { Database } from '@studio/data';
 import { createLogger, createVault, loadMasterKey, type Logger } from '@studio/security';
 import { createAuthService } from './auth.ts';
+import { createBrandImportService } from './brand-import.ts';
 import { createBrandService } from './brands.ts';
 import { createConnectionService } from './connections.ts';
 import type { StudioDeps } from './context.ts';
@@ -16,6 +17,13 @@ import { createRunService } from './runs.ts';
 import { createSampleDataService } from './sample-data.ts';
 
 export type { Access, AuthenticatedSession, IssuedSession } from './auth.ts';
+export {
+  BRANDS_DIR,
+  buildSeedProfile,
+  loadBrandSeeds,
+  type BrandImportOutcome,
+  type LoadedBrandSeed,
+} from './brand-import.ts';
 export { PUBLISH_GRACE_MS, actionTypeFor, type ExecutionFaults } from './execution.ts';
 export type { Actor, BrandCall, Principal, StudioDeps, WorkspaceCall } from './context.ts';
 
@@ -32,11 +40,13 @@ export function createStudio(deps: StudioDeps, options: { faults?: ExecutionFaul
   const runs = createRunService(deps, brands, connections);
   const reports = createReportService(deps, brands);
   const sampleData = createSampleDataService(deps, brands, connections);
+  const brandImport = createBrandImportService(deps, brands);
 
   return {
     deps,
     auth,
     brands,
+    brandImport,
     connections,
     planning,
     execution,

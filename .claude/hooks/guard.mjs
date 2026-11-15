@@ -40,6 +40,13 @@ const CONFIG = {
   allowedPlatforms: new Set(['instagram']),
 };
 const projectDir = () => process.env.CLAUDE_PROJECT_DIR || process.cwd();
+/** Folder holding the studio's content/ and ops/: the project root, or v1/ since the studio moved there. */
+const studioDir = () => {
+  const root = projectDir();
+  if (existsSync(join(root, 'ops')) || existsSync(join(root, 'content'))) return root;
+  const v1 = join(root, 'v1');
+  return existsSync(join(v1, 'ops')) || existsSync(join(v1, 'content')) ? v1 : root;
+};
 
 const SERVER_IDS = {
   '8ca0a414-7010-44c3-8a62-e915245ed1a6': 'zernio',
@@ -299,7 +306,7 @@ const asciiDigits = (s) => String(s).replace(/[۰-۹]/g, (d) => String(d.charCod
 const idsIn = (s) => [...new Set((asciiDigits(s).match(ID_RE) || []).map((x) => x.toUpperCase()))];
 
 function readApprovalRows() {
-  const file = join(projectDir(), 'ops', 'approval-log.md');
+  const file = join(studioDir(), 'ops', 'approval-log.md');
   if (!existsSync(file)) return [];
   const rows = [];
   for (const line of readFileSync(file, 'utf8').split(/\r?\n/)) {
@@ -328,7 +335,7 @@ function approvalsFor(id) {
 }
 
 function contentFiles() {
-  const root = join(projectDir(), 'content');
+  const root = join(studioDir(), 'content');
   const files = [];
   if (!existsSync(root)) return files;
   for (const dir of readdirSync(root, { withFileTypes: true })) {
@@ -743,7 +750,7 @@ function browserVerdict(tool, input) {
 function log(entry) {
   if (process.env.GUARD_LOG === 'off') return;
   try {
-    const dir = join(projectDir(), 'ops');
+    const dir = join(studioDir(), 'ops');
     mkdirSync(dir, { recursive: true });
     appendFileSync(join(dir, 'guard-log.jsonl'), `${JSON.stringify(entry)}\n`, 'utf8');
   } catch {
