@@ -201,7 +201,9 @@ export function buildProviderCatalog(
       manifest: manifestFromRegister(provider, rows, register.checked_at),
       register: rows,
       connectable: false,
-      blocked_reason_fa: internal
+      blocked_reason_fa: provider === 'ai'
+        ? 'مدل تولید متن تنظیم سطح استودیوست، نه اتصال برند: STUDIO_TEXT_MODEL و کلید OpenRouter در STUDIO_HOME. فقط مدل‌های رایگان مجازند.'
+        : internal
         ? 'این قابلیت داخلی خود استودیو است و به اتصال حساب نیاز ندارد؛ وضعیت ساخت و آزمون هر بخش در جدول آمده است.'
         : allManual
           ? 'برای این سرویس مسیر API اثبات‌شده‌ای در دست نیست؛ خروجی به‌صورت بستهٔ دستی تحویل می‌شود و اقدام نهایی با مالک است.'

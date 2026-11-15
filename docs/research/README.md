@@ -23,6 +23,7 @@
 | S19 | [Google Spam Policies](https://developers.google.com/search/docs/essentials/spam-policies) | راهبرد لینک و تولید ارزشمند؛ از ساخت انبوه لینک برای دست‌کاری رتبه پرهیز شود. |
 | S20 | [Search Console API](https://developers.google.com/webmaster-tools/v1/api_reference_index) | analytics/sitemap/inspection؛ ایندکس تضمینی فرض نشده. |
 | S21 | [Ollama](https://docs.ollama.com/) | امکان مدل محلی؛ کیفیت/مجوز مدل/سخت‌افزار باید ارزیابی شود. |
+| S22 | [OpenRouter Chat Completions](https://openrouter.ai/docs/api-reference/chat-completion) و [فهرست مدل‌ها](https://openrouter.ai/api/v1/models) | 2026-11-15: فهرست مدل‌ها و وضعیت کلید با API خوانده شد؛ ۱۵ مدل «:free» و هزینهٔ ۰ در usage.cost. مدل‌های رایگان محدودیت نرخ (429) دارند و ممکن است حذف شوند. |
 
 ## انتخاب رایگان — تصمیم طراحی، نه ادعای بهترین ابزار برای همه
 | مسیر | مزیت | محدودیت | تصمیم |

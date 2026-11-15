@@ -269,6 +269,11 @@ describe('اتصال‌ها بدون موفقیت ساختگی', () => {
     for (const entry of catalog.items) {
       if (entry.manifest.provider_id === 'fake') continue;
       assert.equal(entry.connectable, false, entry.manifest.provider_id);
+      // مدل متن (ai) تنظیم سطح استودیوست، نه اتصال برند؛ ردیف verified آن باید آزمون حساب داشته باشد.
+      if (entry.manifest.provider_id === 'ai') {
+        assert.ok(entry.register.every((row) => row.status !== 'verified' || row.account_evidence.verified));
+        continue;
+      }
       assert.ok(entry.register.every((row) => !row.account_evidence.verified), entry.manifest.provider_id);
       assert.ok(entry.register.every((row) => row.status !== 'verified' || row.route === 'internal'));
     }

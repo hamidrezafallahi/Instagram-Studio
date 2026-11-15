@@ -14,6 +14,21 @@ describe('تنظیمات اجرا', () => {
     assert.equal(config.secureCookies, false);
     assert.equal(config.databaseUrl, undefined);
     assert.ok(config.home.length > 0);
+    assert.equal(config.textModel, 'template');
+  });
+
+  it('تولید متن: auto فقط با کلید OpenRouter به مدل می‌رود و کلید در تنظیمات نمی‌ماند', () => {
+    const key = 'sk-or-v1-test-only-not-a-real-key';
+    const withKey = loadRuntimeConfig({ OPENROUTER_API_KEY: key });
+    assert.equal(withKey.textModel, 'openrouter');
+    assert.ok(withKey.openrouterModels.length > 0);
+    assert.ok(withKey.openrouterModels.every((model) => model.endsWith(':free')));
+    assert.equal(JSON.stringify(withKey).includes(key), false);
+    assert.equal(loadRuntimeConfig({ OPENROUTER_API_KEY: key, STUDIO_TEXT_MODEL: 'template' }).textModel, 'template');
+    assert.deepEqual(
+      loadRuntimeConfig({ STUDIO_OPENROUTER_MODELS: 'a/b:free, c/d:free' }).openrouterModels,
+      ['a/b:free', 'c/d:free'],
+    );
   });
 
   it('HTTPS کوکی Secure را روشن می‌کند و مقدار نامعتبر رد می‌شود', () => {

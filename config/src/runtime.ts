@@ -27,7 +27,22 @@ const RuntimeEnv = z.object({
   STUDIO_LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent']).default('info'),
   STUDIO_DATABASE_URL: z.string().min(1).optional(),
   STUDIO_MIGRATION_DATABASE_URL: z.string().min(1).optional(),
+  /** تولید متن: auto = OpenRouter اگر کلیدش در STUDIO_HOME باشد، وگرنه تولید قالبی. */
+  STUDIO_TEXT_MODEL: z.enum(['auto', 'template', 'openrouter']).default('auto'),
+  /** فهرست مدل‌های رایگان OpenRouter به ترتیب ترجیح، جداشده با ویرگول؛ فقط شناسه‌های «:free». */
+  STUDIO_OPENROUTER_MODELS: z.string().min(1).optional(),
 });
+
+/**
+ * مدل‌های رایگان OpenRouter به ترتیب ترجیح. فهرست و فارسی‌نویسی هر مدل در 2026-11-15
+ * با GET /api/v1/models و یک درخواست آزمایشی بررسی شد (docs/product/CAPABILITY-REGISTER.md).
+ * مدل‌های رایگان ممکن است حذف یا محدود شوند؛ مدل در دسترس نبود → مدل بعدی → تولید قالبی.
+ */
+export const DEFAULT_OPENROUTER_MODELS: readonly string[] = [
+  'nvidia/nemotron-3-ultra-550b-a55b:free',
+  'baidu/ernie-5.5-flash-preview:free',
+  'google/gemma-4-31b-it:free',
+];
 
 export interface RuntimeConfig {
   readonly profile: 'local' | 'server';
@@ -46,6 +61,9 @@ export interface RuntimeConfig {
   /** فقط در پروفایل server از محیط می‌آید؛ در local از رمزهای محلی STUDIO_HOME ساخته می‌شود. */
   readonly databaseUrl: string | undefined;
   readonly migrationDatabaseUrl: string | undefined;
+  /** تولیدکنندهٔ متن پیش‌نویس. کلید OpenRouter در این ساختار نیست؛ فقط در محیط فرایند خوانده می‌شود. */
+  readonly textModel: 'template' | 'openrouter';
+  readonly openrouterModels: readonly string[];
 }
 
 export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -71,8 +89,20 @@ export function loadEnvFiles(): void {
   }
 }
 
+/**
+ * رازهای همین دستگاه از `${STUDIO_HOME}/.env` (بیرون از مخزن)، مثل OPENROUTER_API_KEY.
+ * متغیر موجود محیط بازنویسی نمی‌شود و مقدارها هرگز در RuntimeConfig یا log قرار نمی‌گیرند.
+ */
+export function loadHomeSecrets(home: string): void {
+  const file = join(home, '.env');
+  if (existsSync(file)) process.loadEnvFile(file);
+}
+
 export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): RuntimeConfig {
-  if (env === process.env) loadEnvFiles();
+  if (env === process.env) {
+    loadEnvFiles();
+    loadHomeSecrets(resolve(env['STUDIO_HOME'] ?? defaultHome()));
+  }
   const parsed = RuntimeEnv.safeParse(env);
   if (!parsed.success) {
     const problems = parsed.error.issues
@@ -98,5 +128,12 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     logLevel: value.STUDIO_LOG_LEVEL,
     databaseUrl: value.STUDIO_DATABASE_URL,
     migrationDatabaseUrl: value.STUDIO_MIGRATION_DATABASE_URL,
+    textModel:
+      value.STUDIO_TEXT_MODEL === 'auto'
+        ? env['OPENROUTER_API_KEY'] ? 'openrouter' : 'template'
+        : value.STUDIO_TEXT_MODEL,
+    openrouterModels: value.STUDIO_OPENROUTER_MODELS
+      ? value.STUDIO_OPENROUTER_MODELS.split(',').map((item) => item.trim()).filter(Boolean)
+      : DEFAULT_OPENROUTER_MODELS,
   };
 }

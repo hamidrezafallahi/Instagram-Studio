@@ -186,11 +186,13 @@ describe('فهرست ارائه‌دهنده‌ها', () => {
     for (const entry of catalog.filter((item) => !item.connectable)) {
       assert.equal(entry.manifest.implemented, false, entry.manifest.provider_id);
       assert.ok((entry.blocked_reason_fa ?? '').length > 20, entry.manifest.provider_id);
-      assert.equal(
-        entry.manifest.capabilities.some((capability) => capability.status === 'verified'),
-        false,
-        `${entry.manifest.provider_id}: بدون آزمون حساب verified نمایش داده شد`,
-      );
+      // verified فقط با آزمون حساب ثبت‌شده؛ تنها نمونه تا امروز مدل رایگان OpenRouter است (ADR-030).
+      for (const capability of entry.manifest.capabilities.filter((item) => item.status === 'verified')) {
+        const proven = entry.register.some(
+          (row) => row.action === capability.action && row.status === 'verified' && row.account_evidence.verified,
+        );
+        assert.ok(proven, `${entry.manifest.provider_id}/${capability.action}: بدون آزمون حساب verified نمایش داده شد`);
+      }
     }
     assert.ok(catalog.some((entry) => entry.manifest.provider_id === 'instagram'));
     assert.throws(() => registry.get('instagram'), (error: unknown) => error instanceof StudioError);

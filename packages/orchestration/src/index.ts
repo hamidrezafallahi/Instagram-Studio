@@ -1,10 +1,10 @@
-import { ModelGateway } from '@studio/ai';
+import { ModelGateway, createOpenRouterProvider, templateProvider, type ModelProvider } from '@studio/ai';
 import { loadCapabilityRegister, loadIndustryPacks, summarizePack, type RuntimeConfig } from '@studio/config';
 import { ConnectorRegistry } from '@studio/connectors';
 import { createFakeConnector, FakeProviderState } from '@studio/connector-fake';
 import { StudioError, type IndustryPack, type IndustryPackSummary } from '@studio/contracts';
 import { Database } from '@studio/data';
-import { createLogger, createVault, loadMasterKey, type Logger } from '@studio/security';
+import { createLogger, createVault, loadMasterKey, processScrubber, type Logger } from '@studio/security';
 import { createAuthService } from './auth.ts';
 import { createBrandImportService } from './brand-import.ts';
 import { createBrandService } from './brands.ts';
@@ -83,6 +83,23 @@ export interface StudioOptions {
   /** فقط آزمون: تزریق خطا در worker. */
   faults?: ExecutionFaults;
   applicationName?: string;
+  /** فقط آزمون: درگاه مدل تزریقی (مثلاً provider ساختگی بدون شبکه). */
+  models?: ModelGateway;
+}
+
+/**
+ * درگاه مدل بر اساس تنظیمات: OpenRouter فقط با مدل‌های رایگان و کلید STUDIO_HOME، با fallback قالبی.
+ * کلید فقط از محیط فرایند خوانده و در scrubber ثبت می‌شود تا در هیچ log یا خطایی نیاید.
+ */
+export function createModelGateway(config: RuntimeConfig, env: NodeJS.ProcessEnv = process.env): ModelGateway {
+  const apiKey = env['OPENROUTER_API_KEY']?.trim();
+  if (config.textModel !== 'openrouter' || !apiKey) return new ModelGateway([templateProvider]);
+  processScrubber.register(apiKey);
+  const providers: ModelProvider[] = [
+    createOpenRouterProvider({ apiKey, models: config.openrouterModels }),
+    templateProvider,
+  ];
+  return new ModelGateway(providers, { default_modes: ['free_api', 'template'] });
 }
 
 /** composition root مشترک: همهٔ وابستگی‌ها از تنظیمات اجرا ساخته می‌شوند. */
@@ -97,7 +114,7 @@ export function createStudioFromConfig(options: StudioOptions): Studio {
     packs: loadIndustryPacks(),
     register: loadCapabilityRegister(),
     connectors,
-    models: new ModelGateway(),
+    models: options.models ?? createModelGateway(config),
     logger: options.logger ?? createLogger({ service: 'studio', level: config.logLevel }),
     settings: { profile: config.profile, sampleData: config.sampleData, sessionTtlHours: 24 * 7 },
     now: options.now ?? (() => new Date()),

@@ -17,8 +17,8 @@ export const draftProductionWorkflow: WorkflowDefinition = {
   title_fa: 'تولید پیش‌نویس',
   describeScope: ({ brand_name, week_start, params }) =>
     params.schedule_entry_ids?.length
-      ? `تولید پیش‌نویس برای ${faDigits(params.schedule_entry_ids.length)} آیتم انتخابی «${brand_name}». فقط پیش‌نویس داخلی؛ چیزی منتشر نمی‌شود. هزینه: صفر (تولید قالبی محلی).`
-      : `تولید پیش‌نویس برای آیتم‌های بدون محتوای هفتهٔ ${faDate(week_start)} برند «${brand_name}». فقط پیش‌نویس داخلی؛ چیزی منتشر نمی‌شود. هزینه: صفر (تولید قالبی محلی).`,
+      ? `تولید پیش‌نویس برای ${faDigits(params.schedule_entry_ids.length)} آیتم انتخابی «${brand_name}». فقط پیش‌نویس داخلی؛ چیزی منتشر نمی‌شود. هزینه: صفر (مدل رایگان یا تولید قالبی محلی).`
+      : `تولید پیش‌نویس برای آیتم‌های بدون محتوای هفتهٔ ${faDate(week_start)} برند «${brand_name}». فقط پیش‌نویس داخلی؛ چیزی منتشر نمی‌شود. هزینه: صفر (مدل رایگان یا تولید قالبی محلی).`,
   steps: [
     loadBrandStep,
     {
@@ -57,7 +57,8 @@ export const draftProductionWorkflow: WorkflowDefinition = {
     {
       name: 'produce_drafts',
       title_fa: 'نگارش و بازبینی خودکار',
-      timeout_ms: 120_000,
+      // مدل زبانی رایگان برای هر آیتم تا ۲ دقیقه (و یک بار اصلاح) زمان می‌برد.
+      timeout_ms: 900_000,
       async run(context, tools) {
         const brand = context.brand as NonNullable<RunContext['brand']>;
         let ready = 0;

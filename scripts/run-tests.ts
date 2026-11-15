@@ -59,7 +59,14 @@ async function main(): Promise<void> {
   const needsDatabase = !unitOnly;
 
   const cluster: ClusterOptions = { home: config.home, name: 'test', port: config.pgPort + 1 };
-  const env: NodeJS.ProcessEnv = { ...process.env, STUDIO_LOG_LEVEL: 'silent', NODE_ENV: 'test' };
+  // آزمون‌ها هرگز به مدل بیرونی وصل نمی‌شوند؛ کلید احتمالی STUDIO_HOME به فرایندهای آزمون نمی‌رسد.
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    STUDIO_LOG_LEVEL: 'silent',
+    NODE_ENV: 'test',
+    STUDIO_TEXT_MODEL: 'template',
+    OPENROUTER_API_KEY: '',
+  };
 
   if (needsDatabase) {
     await startCluster(cluster);

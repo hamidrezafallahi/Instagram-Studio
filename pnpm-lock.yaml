@@ -50,6 +50,9 @@ importers:
 
   .:
     dependencies:
+      '@studio/agents':
+        specifier: workspace:*
+        version: link:agents
       '@studio/config':
         specifier: workspace:*
         version: link:config

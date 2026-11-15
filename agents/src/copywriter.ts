@@ -170,6 +170,142 @@ function writeDraft(input: CopywriterInput): DraftOutput {
   };
 }
 
+/* ───────────────────────────── مسیر مدل زبانی ───────────────────────────── */
+
+/** آنچه مدل برمی‌گرداند؛ منبع‌ها و ادعاها را کد از دادهٔ برند و QA می‌سازد، نه مدل. */
+export const ModelDraft = z.object({
+  title_fa: z.string().trim().min(1).max(300),
+  text: z.string().trim().min(20).max(20_000),
+  open_questions_fa: z.array(z.string().trim().min(1).max(400)).max(20).default([]),
+});
+export type ModelDraft = z.infer<typeof ModelDraft>;
+
+const FORMAT_GUIDE: Partial<Record<ContentFormat, string>> = {
+  carousel: [
+    'کاروسل ۶ تا ۹ اسلاید با این ساختار (متن داخل [] را با محتوای واقعی جایگزین کنید و خود [] را ننویسید):',
+    'اسلاید ۱ (کاور): [قلاب کوتاه]',
+    'اسلاید ۲ — [تیتر این اسلاید]:',
+    '[یک تا سه جملهٔ توضیح؛ حداکثر حدود ۳۵ کلمه؛ یک ایده و یک نکتهٔ قابل‌استفاده]',
+    '… (اسلایدهای میانی به همین شکل؛ هر اسلاید تیتر و توضیح دارد)',
+    'اسلاید پایانی: [دعوت به اقدام]',
+    'کپشن:',
+    '[خط اول: قلاب مستقل] [بدنهٔ کوتاه] [دعوت به اقدام] [هشتگ‌ها]',
+    'تعداد مواردی که در کپشن نام می‌برید باید با تعداد اسلایدهای محتوا یکی باشد. عدد اعشاری فارسی با «٫» (مثل ۲٫۵).',
+  ].join('\n'),
+  reel:
+    'اسکریپت ریلز ۳۰ تا ۶۰ ثانیه. بخش‌ها: «قلاب (سه ثانیهٔ اول): …»، «بخش ۱ — …:»، «بخش ۲ — …:» (گفتار محاوره‌ای سبک و مؤدبانه)، «جمع‌بندی و دعوت به اقدام: …»، «متن روی تصویر: …» (کوتاه)، سپس «کپشن:».',
+  trial_reel: 'مثل ریلز: قلاب، بخش‌ها، جمع‌بندی و دعوت به اقدام، متن روی تصویر و «کپشن:».',
+  story:
+    'سکانس استوری ۳ تا ۶ فریم: «فریم ۱: …»، «فریم ۲ — …:» و «فریم پایانی: …». خط‌ها کوتاه و پرسشی؛ اگر استیکر نظرسنجی یا سؤال مناسب است، داخل پرانتز پیشنهاد بدهید.',
+  post: 'پست تک‌تصویری: یک تیتر کوتاه برای تصویر و سپس «کپشن:».',
+  article: 'مقاله: «عنوان: …»، چند بخش با «## » و بخش پایانی «## قدم بعدی».',
+  text_post: 'پست متنی: خط اول قلاب، چند پاراگراف کوتاه، دعوت به اقدام.',
+};
+
+function bulletList(items: readonly string[]): string {
+  return items.length ? items.map((item) => `- ${item}`).join('\n') : '- (ثبت نشده)';
+}
+
+/** prompt نویسنده: فقط دادهٔ ثبت‌شدهٔ همین برند؛ بدون دادهٔ شخصی یا پیام مشتری. */
+export function buildCopywriterPrompt(input: CopywriterInput): { system: string; user: string } {
+  const { profile, pack, entry } = input;
+  const pillar = pack.content_pillars.find((item) => item.id === entry.pillar);
+  const fields = [...pack.required_fields, ...pack.faq_fields];
+  const answered = fields
+    .filter((field) => (profile.pack_fields[field.key] ?? '').trim())
+    .map((field) => `${field.label_fa}: ${profile.pack_fields[field.key]}`);
+  const missing = fields
+    .filter((field) => field.required && !(profile.pack_fields[field.key] ?? '').trim())
+    .map((field) => field.label_fa);
+  const forbidden = [
+    ...profile.forbidden_claims,
+    ...pack.claims_policy.rules.filter((rule) => rule.action === 'forbid').flatMap((rule) => rule.phrases),
+  ];
+  const instagram = entry.channel === 'instagram';
+
+  const system = [
+    `شما نویسندهٔ محتوای فارسی برند «${profile.identity.name}» هستید و فقط پیش‌نویس می‌نویسید؛ چیزی منتشر نمی‌شود و انسان پیش از انتشار بازبینی می‌کند.`,
+    '',
+    'قواعد قطعی:',
+    '- فقط از اطلاعاتی که در پیام کاربر آمده استفاده کنید. هیچ مشتری، پروژه، عدد، درصد، نتیجه، نظر مشتری، سابقه یا قیمتی نسازید.',
+    '- اگر برای نوشتن به اطلاعاتی نیاز دارید که داده نشده، دقیقاً این علامت را بگذارید: 〔اطلاعات مالک لازم است: توضیح کوتاه〕 و همان را در open_questions_fa هم بنویسید.',
+    '- هیچ‌یک از عبارت‌های ممنوع فهرست‌شده را به کار نبرید؛ وعدهٔ قطعی، تضمین، صفت عالی بی‌مدرک و فشار فروش ممنوع است.',
+    '- نگارش فارسی معیار: نیم‌فاصله (می‌شود، کسب‌وکار، سایت‌ها)، «ی» و «ک» فارسی، رقم فارسی در متن فارسی، نشانه‌گذاری فارسی (،؛؟) و گیومهٔ «». واژه‌های اداری (می‌باشد، نمودن، گردید) ممنوع.',
+    '- دقیقاً یک دعوت به اقدام: همان متنی که داده شده، بدون تغییر.',
+    instagram
+      ? '- برای اینستاگرام در انتهای کپشن ۳ تا ۵ هشتگ مرتبط بگذارید؛ هشتگ نیم‌فاصله ندارد (به‌جایش «_»). حداکثر ۲ ایموجی و حداکثر یک «!».'
+      : '- هشتگ نگذارید.',
+    '- اصطلاح فنی انگلیسی با املای اصلی (React، SEO، API) و بار اول برای مخاطب غیرفنی توضیح کوتاه.',
+    '',
+    `لحن برند: ${profile.voice.tone || '(ثبت نشده)'}`,
+    'قواعد لحن برند:',
+    bulletList(profile.voice.rules),
+    profile.voice.sample_texts.length ? `نمونه‌متن‌های برند (برای لحن، نه برای کپی):\n${bulletList(profile.voice.sample_texts)}` : '',
+    'عبارت‌های ممنوع:',
+    bulletList(forbidden),
+    '',
+    'خروجی: فقط یک شیء JSON، بدون هیچ توضیح یا markdown دیگر، با این کلیدها:',
+    '{"title_fa": "عنوان کوتاه داخلی", "text": "متن کامل پیش‌نویس با ساختار خواسته‌شده", "open_questions_fa": ["پرسش از مالک دربارهٔ اطلاعات ناقص"]}',
+  ]
+    .filter((line) => line !== '')
+    .join('\n');
+
+  const offers = profile.offers.map((offer) => `${offer.title}${offer.description ? `: ${offer.description}` : ''}`);
+  const user = [
+    `کانال: ${entry.channel}`,
+    `قالب: ${entry.format}`,
+    `ساختار قالب: ${FORMAT_GUIDE[entry.format] ?? 'متن کوتاه و روشن با یک دعوت به اقدام.'}`,
+    `ستون محتوا: ${pillar ? `${pillar.title_fa} — ${pillar.description_fa}` : entry.pillar}`,
+    `موضوع: ${entry.topic_fa}`,
+    `هدف: ${entry.goal_fa || '(ثبت نشده)'}`,
+    `دعوت به اقدام (عیناً): ${entry.cta_fa || '(ثبت نشده؛ یک دعوت کوتاه و بی‌فشار بنویسید)'}`,
+    '',
+    `معرفی برند: ${profile.identity.description ?? profile.identity.tagline ?? '(ثبت نشده)'}`,
+    `مخاطب: ${profile.audience.summary || '(ثبت نشده)'}`,
+    'بخش‌های مخاطب:',
+    bulletList(profile.audience.segments),
+    'خدمات/کالاها:',
+    bulletList(offers),
+    'پاسخ‌های مالک:',
+    bulletList(answered),
+    missing.length ? `اطلاعاتی که مالک هنوز نداده (اگر لازم شد علامت بگذارید): ${missing.join('، ')}` : '',
+    pillar?.requires_evidence
+      ? 'این ستون به مدرک واقعی و اجازهٔ مشتری نیاز دارد؛ چون مدرکی داده نشده، هیچ جزئیات پروژه ننویسید و جای آن علامت «اطلاعات مالک لازم است» بگذارید.'
+      : '',
+  ]
+    .filter((line) => line !== '')
+    .join('\n');
+
+  return { system, user };
+}
+
+/** منبع‌ها از دادهٔ برند، مثل تولید قالبی؛ مدل منبع اعلام نمی‌کند. */
+function finishModelDraft(input: CopywriterInput, draft: ModelDraft): DraftOutput {
+  const { profile, pack, entry } = input;
+  const text = normalizePersian(draft.text);
+  const pillar = pack.content_pillars.find((item) => item.id === entry.pillar);
+  const sourceRefs: SourceRef[] = [
+    { source_id: 'brand_profile', kind: 'brand_profile', label: `سند برند، نسخهٔ ${faDigits(input.brand_revision)}` },
+    { source_id: slug(`pack_${pack.id}`), kind: 'industry_pack', label: `بستهٔ صنعت «${pack.name_fa}» نسخهٔ ${faDigits(pack.version)}` },
+  ];
+  for (const offer of profile.offers) {
+    if (text.includes(offer.title) || entry.topic_fa.includes(offer.title)) {
+      sourceRefs.push({ source_id: slug(`offer_${offer.id}`), kind: 'offer', label: `خدمت/کالا: ${offer.title}` });
+    }
+  }
+  const openQuestions = [...draft.open_questions_fa];
+  if (pillar?.requires_evidence) {
+    openQuestions.push('این ستون به مدرک واقعی و اجازهٔ انتشار نیاز دارد؛ منبع مرتبط را پیش از تأیید بررسی کنید.');
+  }
+  return {
+    title_fa: normalizePersian(draft.title_fa).slice(0, 300),
+    text,
+    source_refs: sourceRefs.slice(0, 40),
+    claims: [],
+    open_questions_fa: openQuestions.slice(0, 20),
+  };
+}
+
 export const copywriter: AgentRole<CopywriterInput, DraftOutput> = {
   role: 'copywriter',
   title_fa: 'نویسنده',
@@ -177,8 +313,15 @@ export const copywriter: AgentRole<CopywriterInput, DraftOutput> = {
   output_schema: DraftOutput,
   max_calls: 1,
   timeout_ms: 15_000,
-  allowed_modes: ['template'],
+  // مدل رایگان در اولویت است؛ اگر در دسترس نبود یا خروجی‌اش نامعتبر بود، تولید قالبی.
+  allowed_modes: ['free_api', 'template'],
   tool_allowlist: [],
   authority_fa: 'فقط پیش‌نویس نسخه‌دار؛ بدون ارسال یا انتشار.',
   template: writeDraft,
+  model: {
+    prompt_version: 'copywriter-model-1.1.0',
+    build: buildCopywriterPrompt,
+    schema: ModelDraft,
+    finish: finishModelDraft,
+  },
 };

@@ -79,8 +79,77 @@ describe('درگاه مدل', () => {
   it('هیچ نقشی ابزار ارسال یا انتشار ندارد', () => {
     for (const agent of [strategist, copywriter, editorQa]) {
       assert.deepEqual(agent.tool_allowlist, [], agent.role);
-      assert.deepEqual(agent.allowed_modes, ['template'], agent.role);
+      // هیچ نقشی حالت پولی ندارد؛ فقط نویسنده مدل رایگان دارد و بازبین و برنامه‌ریز قطعی می‌مانند.
+      assert.equal(agent.allowed_modes.includes('paid_api'), false, agent.role);
     }
+    assert.deepEqual(strategist.allowed_modes, ['template']);
+    assert.deepEqual(editorQa.allowed_modes, ['template']);
+    assert.deepEqual(copywriter.allowed_modes, ['free_api', 'template']);
+  });
+});
+
+describe('نویسنده با مدل زبانی (prompt و تبدیل خروجی)', () => {
+  const input = (): CopywriterInput => ({
+    profile: webBrand(),
+    pack: pack('web-services'),
+    brand_revision: 3,
+    entry: {
+      channel: 'instagram',
+      format: 'carousel',
+      pillar: 'common_mistakes',
+      topic_fa: 'اشتباه‌های رایج در طراحی فروشگاه اینترنتی',
+      goal_fa: 'آگاهی',
+      cta_fa: 'برای بررسی سایت‌تان پیام بدهید.',
+    },
+  });
+
+  it('prompt فقط دادهٔ برند را دارد و قواعد ساختگی‌نساختن و عبارت ممنوع را می‌گوید', () => {
+    const profile = webBrand();
+    profile.forbidden_claims = ['بی‌نظیر'];
+    const prompt = copywriter.model?.build({ ...input(), profile });
+    assert.ok(prompt);
+    assert.match(prompt.system, /هیچ مشتری، پروژه، عدد/);
+    assert.match(prompt.system, /بی‌نظیر/);
+    assert.match(prompt.system, /تضمین/); // claims_policy بستهٔ صنعت
+    assert.match(prompt.user, /طراحی فروشگاه اینترنتی/);
+    assert.match(prompt.user, /برای بررسی سایت‌تان پیام بدهید\./);
+    assert.match(prompt.user, /اسلاید ۱ \(کاور\)/);
+  });
+
+  it('خروجی مدل به پیش‌نویس با منبع‌های برند تبدیل و نگارشش یکسان می‌شود', () => {
+    const spec = copywriter.model;
+    assert.ok(spec);
+    const draft = spec.finish(input(), { title_fa: 'عنوان', text: 'متن درباره طراحی فروشگاه اینترنتی با ي عربی', open_questions_fa: [] });
+    const parsed = copywriter.output_schema.parse(draft);
+    assert.ok(parsed.source_refs.some((ref) => ref.kind === 'offer'));
+    assert.ok(parsed.source_refs.some((ref) => ref.source_id === 'brand_profile'));
+    assert.equal(parsed.text.includes('ي'), false);
+    assert.deepEqual(parsed.claims, []);
+  });
+
+  it('درگاه با مدل ساختگی پیش‌نویس مدل‌دار می‌سازد و بدون مدل قالبی', async () => {
+    const llm: ModelProvider = {
+      id: 'fake-llm',
+      mode: 'free_api',
+      cost_model: 'free_quota',
+      async health() {
+        return { ok: true, detail_fa: 'آزمون' };
+      },
+      async complete() {
+        return {
+          text: JSON.stringify({ title_fa: 'پنج اشتباه', text: 'اسلاید ۱ (کاور): پنج اشتباه رایج در طراحی فروشگاه اینترنتی', open_questions_fa: [] }),
+          model_id: 'vendor/m:free',
+          cost_usd: 0,
+        };
+      },
+    };
+    const withModel = await new ModelGateway([llm, templateProvider], { default_modes: ['free_api', 'template'] })
+      .session()
+      .generate(toRequest(copywriter, input()));
+    assert.equal(withModel.generator.kind, 'model');
+    assert.equal(withModel.generator.provider, 'fake-llm:vendor/m:free');
+    const templateOnly = await new ModelGateway().session().generate(toRequest(copywriter, input()));
+    assert.equal(templateOnly.generator.kind, 'template');
   });
 });
 

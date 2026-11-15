@@ -1,4 +1,4 @@
-import type { ModelMode } from '@studio/ai';
+import type { ModelMode, ModelSpec } from '@studio/ai';
 import type { z } from 'zod';
 
 /**
@@ -18,4 +18,7 @@ export interface AgentRole<I, O> {
   readonly authority_fa: string;
   /** تولید deterministic بدون مدل؛ فقط از دادهٔ ورودی استفاده می‌کند و چیزی حدس نمی‌زند. */
   template(input: I): O;
+  /** مسیر مدل زبانی (اختیاری)؛ بدون آن نقش فقط قالبی اجرا می‌شود. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly model?: ModelSpec<I, O, any>;
 }

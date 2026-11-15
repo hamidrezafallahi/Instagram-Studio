@@ -1428,6 +1428,39 @@
       "next_review": "2026-12-11"
     },
     {
+      "provider": "ai",
+      "route": "direct",
+      "action": "free_api",
+      "title_fa": "تولید متن با مدل‌های رایگان OpenRouter",
+      "status": "verified",
+      "reason_code": "FREE_MODELS_ONLY",
+      "doc_evidence": {
+        "supported": "yes",
+        "source_ids": [
+          "S22"
+        ],
+        "urls": [
+          "https://openrouter.ai/docs/api-reference/chat-completion",
+          "https://openrouter.ai/api/v1/models"
+        ],
+        "checked_at": "2026-11-15",
+        "checked_by": "builder",
+        "api_version": "v1"
+      },
+      "account_evidence": {
+        "verified": true,
+        "test_result": "passed",
+        "tested_at": "2026-11-15T12:30:00Z",
+        "account_type": "api_key_spend_limit_0",
+        "scopes": []
+      },
+      "cost_model": "free_quota",
+      "fallback_fa": "مدل رایگان بعدی در فهرست، سپس تولید قالبی و ویرایش انسانی",
+      "uncertainty_fa": "مدل‌های رایگان ممکن است بی‌خبر حذف، کند یا محدود (429) شوند و ارائه‌دهندهٔ آن‌ها ممکن است درخواست‌ها را ذخیره کند؛ فقط دادهٔ برند فرستاده می‌شود. کیفیت فارسی متغیر است و QA و تأیید انسانی جایگزین ندارد. هزینهٔ غیرصفر تولید را متوقف می‌کند.",
+      "milestone": "M3",
+      "next_review": "2026-12-15"
+    },
+    {
       "provider": "media",
       "route": "internal",
       "action": "local_image_render",

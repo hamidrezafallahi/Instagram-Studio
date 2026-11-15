@@ -13,6 +13,7 @@
 | needs_access (نیاز به دسترسی) | 16 |
 | manual_only (فقط دستی) | 10 |
 | unsupported (پشتیبانی نمی‌شود) | 1 |
+| verified (آزموده) | 1 |
 
 ## instagram
 
@@ -195,12 +196,14 @@
 | مدل محلی از طریق Ollama (`local_model`) | internal | unverified | BENCHMARK_REQUIRED | partial (S21) | not_run | free | تولید قالبی و ویرایش انسانی | M3 |
 | تولید با مدل داخل ابزار متصل (MCP) (`harness_assisted`) | internal | needs_access | MCP_NOT_BUILT | yes (S01) | not_run | free | تولید قالبی؛ run در حالت waiting_for_harness می‌ماند | M6 |
 | مدل پولی از طریق API (`paid_api`) | direct | needs_access | BLOCKED_BY_FREE_ONLY | unknown (بدون منبع) | not_run | paid | تولید قالبی، مدل محلی یا هارنس | M3 |
+| تولید متن با مدل‌های رایگان OpenRouter (`free_api`) | direct | verified | FREE_MODELS_ONLY | yes (S22) | آزموده 2026-11-15T12:30:00Z | free_quota | مدل رایگان بعدی در فهرست، سپس تولید قالبی و ویرایش انسانی | M3 |
 
 عدم قطعیت‌ها:
 - `internal/template_generation`: خروجی قالبی است و فقط از دادهٔ برند استفاده می‌کند؛ جایگزین نویسندهٔ انسانی یا مدل نیست. پس از آزمون M1 وضعیت به‌روز می‌شود.
 - `internal/local_model`: کیفیت فارسی، مجوز مدل و سخت‌افزار باید با benchmark سنجیده شود.
 - `internal/harness_assisted`: اشتراک چت معادل مجوز API یا پردازش شبانه نیست. سازگاری هر client جدا بررسی می‌شود.
 - `direct/paid_api`: در حالت free_only هرگز خودکار فعال نمی‌شود؛ هر مصرف به درخواست شارژ/پرداخت مالک تبدیل می‌شود.
+- `direct/free_api`: مدل‌های رایگان ممکن است بی‌خبر حذف، کند یا محدود (429) شوند و ارائه‌دهندهٔ آن‌ها ممکن است درخواست‌ها را ذخیره کند؛ فقط دادهٔ برند فرستاده می‌شود. کیفیت فارسی متغیر است و QA و تأیید انسانی جایگزین ندارد. هزینهٔ غیرصفر تولید را متوقف می‌کند.
 
 ## media
 

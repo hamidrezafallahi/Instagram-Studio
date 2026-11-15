@@ -23,9 +23,11 @@
     "start": "node infra/local/cli.ts start",
     "test": "node scripts/run-tests.ts",
     "test:unit": "node scripts/run-tests.ts --unit",
-    "acceptance": "node scripts/run-tests.ts --acceptance"
+    "acceptance": "node scripts/run-tests.ts --acceptance",
+    "eval:text": "node scripts/eval-text-model.ts"
   },
   "dependencies": {
+    "@studio/agents": "workspace:*",
     "@studio/config": "workspace:*",
     "@studio/contracts": "workspace:*",
     "@studio/data": "workspace:*",

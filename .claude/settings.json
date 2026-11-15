@@ -48,7 +48,7 @@
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard.mjs\"",
-            "timeout": 60,
+            "timeout": 240,
             "onFailure": "block",
             "statusMessage": "Instagram Studio guard"
           }

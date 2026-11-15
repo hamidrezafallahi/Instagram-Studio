@@ -187,6 +187,8 @@ export async function createHarness(options: { sampleData?: boolean; now?: strin
     logLevel: 'debug',
     databaseUrl: database.appUrl,
     migrationDatabaseUrl: database.ownerUrl,
+    textModel: 'template',
+    openrouterModels: [],
   };
   const studio = createStudioFromConfig({
     config,

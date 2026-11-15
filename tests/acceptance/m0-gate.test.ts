@@ -41,8 +41,9 @@ describe('M0 — ثبت قابلیت‌ها', () => {
       if (entry.account_evidence.verified) {
         assert.equal(entry.account_evidence.test_result, 'passed', `${key}: مدرک حساب بدون نتیجهٔ موفق`);
       }
-      if (entry.route !== 'internal') {
-        // در این مرحله هیچ حساب بیرونی متصل نشده است.
+      if (entry.route !== 'internal' && entry.provider !== 'ai') {
+        // هیچ حساب بیرونیِ برند هنوز متصل نشده است. مدل متن تنظیم سطح استودیوست و با آزمون حساب
+        // (کلید OpenRouter، 2026-11-15) verified شد؛ شرط مدرک حساب آن در بالا بررسی می‌شود (ADR-030).
         assert.notEqual(entry.status, 'verified', `${key}: قابلیت بیرونی بدون اتصال واقعی verified شده است`);
       }
     }
