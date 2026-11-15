@@ -1,0 +1,10 @@
+# Guard decision log (local audit trail)
+.claude/guard-log.jsonl
+
+# Claude Code personal overrides
+.claude/settings.local.json
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini

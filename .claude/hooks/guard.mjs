@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /**
- * Instagram Studio guard: PreToolUse hook (CLAUDE.md §2, ops/guardrails.md).
+ * Instagram Studio guard: PreToolUse hook (root CLAUDE.md, "Hard rules").
+ * The file-based studio (v1) is retired; work happens in v2. This hook stays as the zero-spend and
+ * no-direct-publish safety net for the Zernio and Canva connectors attached to Claude.
  *
  *   deny         the call is blocked before it reaches the tool; nothing the user clicks overrides it
  *   ask          Claude Code shows a permission prompt that Hamidreza must approve
@@ -23,7 +25,7 @@
  * and an unchanged body hash.
  *
  * .claude/settings.json runs this with onFailure:"block", so if Node is missing the call is blocked.
- * Every deny/ask decision is appended to ops/guard-log.jsonl (set GUARD_LOG=off to disable).
+ * Every deny/ask decision is appended to .claude/guard-log.jsonl (git-ignored; set GUARD_LOG=off to disable).
  * Tests: node .claude/hooks/guard.test.mjs
  */
 import { readFileSync, appendFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs';
@@ -40,13 +42,12 @@ const CONFIG = {
   allowedPlatforms: new Set(['instagram']),
 };
 const projectDir = () => process.env.CLAUDE_PROJECT_DIR || process.cwd();
-/** Folder holding the studio's content/ and ops/: the project root, or v1/ since the studio moved there. */
-const studioDir = () => {
-  const root = projectDir();
-  if (existsSync(join(root, 'ops')) || existsSync(join(root, 'content'))) return root;
-  const v1 = join(root, 'v1');
-  return existsSync(join(v1, 'ops')) || existsSync(join(v1, 'content')) ? v1 : root;
-};
+/**
+ * Folder holding content/ and ops/approval-log.md. The file-based studio (v1) is retired: the project
+ * now works through v2, whose own server-side approvals (ActionIntent) gate publishing. With no
+ * content files and no approval log here, every Zernio post write from Claude is denied (fail closed).
+ */
+const studioDir = () => projectDir();
 
 const SERVER_IDS = {
   '8ca0a414-7010-44c3-8a62-e915245ed1a6': 'zernio',
@@ -385,7 +386,7 @@ function gateCheck(id, needed, action, scheduledMs) {
     return deny(`${action} needs an explicit content ID: pass tags: ["IG-0xx"] (exactly one), or use a post_id recorded as zernio_post_id in a content file. Vague approvals such as "approve all" never authorise posts.`);
   }
   const file = fileForId(id);
-  if (!file) return deny(`${action}: no content file for ${id} under content/.`);
+  if (!file) return deny(`${action}: no content file for ${id} under content/. Direct posting from Claude is retired with v1; publish through the v2 dashboard's approval queue or manually in the Instagram app.`);
   const ap = approvalsFor(id);
   const missing = needed.filter((g) => !ap[g]);
   if (missing.length) {
@@ -750,7 +751,7 @@ function browserVerdict(tool, input) {
 function log(entry) {
   if (process.env.GUARD_LOG === 'off') return;
   try {
-    const dir = join(studioDir(), 'ops');
+    const dir = join(projectDir(), '.claude');
     mkdirSync(dir, { recursive: true });
     appendFileSync(join(dir, 'guard-log.jsonl'), `${JSON.stringify(entry)}\n`, 'utf8');
   } catch {
