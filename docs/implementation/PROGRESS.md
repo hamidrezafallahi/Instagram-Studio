@@ -20,6 +20,9 @@
 - آزمون‌های تازه: `packages/orchestration/src/brand-import.test.ts`، `tests/integration/brand-import.test.ts` و یک مورد در `packages/domain/src/domain.test.ts`. نتیجه (اجرا توسط مالک در ترمینال، 2026-11-15): `pnpm typecheck` بدون خطا؛ `pnpm test` → **۱۷۲ از ۱۷۲ موفق**، صفر skip و صفر fail (۱۶۸ قبلی + ۴ تازه). محیط: Windows 11، Node 26.4.0، PostgreSQL توکار، کانکتور fake.
 - آنچه منتقل نشد و دلیلش: [config/brands/hamidreza-falahi/README.md](../../config/brands/hamidreza-falahi/README.md).
 
+## انتقال workspace به ریشهٔ مخزن (2026-11-15)
+- v1 حذف شد (tag ‏`v1-final`) و محتوای پوشهٔ `v2` به ریشهٔ مخزن منتقل شد (ADR-029). `CLAUDE.md` و `.gitignore` با نسخهٔ ریشه ادغام شدند.
+
 ## تصمیم‌های باز (منتظر مالک؛ هیچ‌کدام ساخت را متوقف نکرده‌اند)
 | موضوع | پیش‌فرض فعلی | زمان نیاز |
 |---|---|---|

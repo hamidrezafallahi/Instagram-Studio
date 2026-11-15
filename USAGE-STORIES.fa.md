@@ -7,8 +7,8 @@
 
 ## ۰. اول بدانید
 
-استودیو فقط یک نسخه دارد: **[v2](v2/)**، نرم‌افزار چندبرندی با **داشبورد وب فارسی**.
-نسخهٔ قبلی (v1، استودیوی مبتنی بر فایل و گفتگو) کنار گذاشته شد. دانش برند شما به [v2/config/brands/hamidreza-falahi](v2/config/brands/hamidreza-falahi/README.md) منتقل شده و تاریخچه‌اش در git با tag ‏`v1-final` می‌ماند.
+استودیو یک نرم‌افزار چندبرندی با **داشبورد وب فارسی** است و از ریشهٔ همین مخزن (`C:\fallahi\Instagram-Studio`) اجرا می‌شود.
+نسخهٔ قبلی (v1، استودیوی مبتنی بر فایل و گفتگو) کنار گذاشته شد. دانش برند شما به [config/brands/hamidreza-falahi](config/brands/hamidreza-falahi/README.md) منتقل شده و تاریخچه‌اش در git با tag ‏`v1-final` می‌ماند.
 
 | | وضعیت امروز |
 |---|---|
@@ -23,7 +23,7 @@
 ## بخش الف — راه‌اندازی
 
 ### اجرا
-در پوشهٔ `v2` (نیازمند Node 26.4 و pnpm 11.9):
+در ریشهٔ مخزن (نیازمند Node 26.4 و pnpm 11.9):
 
 ```bash
 pnpm install
@@ -114,7 +114,7 @@ Zernio هنوز به Claude وصل است. می‌توانید **فقط برای
 **تصمیم باز شما:** نشانی سایت و نوع CMS هنوز ثبت نشده است.
 
 ### C-04 · Canva ⏳ (M7)
-کانکتور Canva Free به Claude وصل است، ولی در v2 هنوز ساخته نشده. فقط Canva Free: بدون المان تاج‌دار، بدون Magic Resize، بدون تصویر هوش مصنوعی.
+کانکتور Canva Free به Claude وصل است، ولی در استودیو هنوز ساخته نشده. فقط Canva Free: بدون المان تاج‌دار، بدون Magic Resize، بدون تصویر هوش مصنوعی.
 
 ### C-05 · تلگرام و واتساپ ⏳
 - **تلگرام (M4):** از @BotFather یک ربات بسازید، توکنش را در داشبورد ← اتصال‌ها وارد کنید و با **کد یک‌بارمصرف** جفت کنید.
@@ -144,6 +144,6 @@ Zernio هنوز به Claude وصل است. می‌توانید **فقط برای
 | Claude نمی‌تواند پست بگذارد | عمدی است؛ از تأییدها و بستهٔ دستی استفاده کنید |
 | همهٔ فرمان‌های Claude با «hook timed out» رد می‌شوند | اپ Claude را ببندید و دوباره باز کنید؛ خود نگهبان در حدود ۰٫۱ ثانیه اجرا می‌شود |
 | تست نگهبان | `node .claude/hooks/guard.test.mjs` در ریشهٔ مخزن |
-| آزمون‌های v2 | در پوشهٔ `v2`: `pnpm typecheck` و `pnpm test` |
+| آزمون‌های استودیو | در ریشهٔ مخزن: `pnpm typecheck` و `pnpm test` |
 
-**اسناد مرجع:** [v2/docs/user-guide/README.md](v2/docs/user-guide/README.md)، [v2/docs/product/CAPABILITY-REGISTER.md](v2/docs/product/CAPABILITY-REGISTER.md)، [v2/docs/implementation/PROGRESS.md](v2/docs/implementation/PROGRESS.md)، [v2/config/brands/hamidreza-falahi/README.md](v2/config/brands/hamidreza-falahi/README.md).
+**اسناد مرجع:** [docs/user-guide/README.md](docs/user-guide/README.md)، [docs/product/CAPABILITY-REGISTER.md](docs/product/CAPABILITY-REGISTER.md)، [docs/implementation/PROGRESS.md](docs/implementation/PROGRESS.md)، [config/brands/hamidreza-falahi/README.md](config/brands/hamidreza-falahi/README.md).

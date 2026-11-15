@@ -11,7 +11,7 @@
 | M3 تا M8 | not_started | M4 به بعد به token تلگرام، سایت staging و حساب/مجوز پلتفرم وابسته است |
 
 ## ۲. آنچه پیش از این نشست ساخته شده بود (بررسی‌شده)
-- monorepo با pnpm (ریشه = `v2`)، Node 26 با type-stripping، TypeScript فقط برای typecheck، آزمون با `node:test`.
+- monorepo با pnpm (ریشه = `v2`؛ از 2026-11-15 ریشهٔ خود مخزن، ADR-029)، Node 26 با type-stripping، TypeScript فقط برای typecheck، آزمون با `node:test`.
 - PostgreSQL 18 توکار (`embedded-postgres`) با نقش‌های جدا، RLS روی همهٔ جدول‌های کسب‌وکار و FK مرکب ضد ارجاع بین برندها (`packages/data/migrations/0001_core.sql`).
 - قراردادهای code-first با zod و تولید OpenAPI/JSON Schema (`packages/contracts`).
 - ورود مالک با نشست HttpOnly و CSRF، چند برند پویا، پنج industry pack (چهار نمونه + generic)، سیاست اختیار نسخه‌دار، vault رمزها.

@@ -1,10 +1,27 @@
-# Guard decision log (local audit trail)
-.claude/guard-log.jsonl
+# وابستگی‌ها و خروجی ساخت
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
 
-# Claude Code personal overrides
+# تنظیمات محلی هر دستگاه (بدون راز؛ رازها اصلاً داخل پوشهٔ پروژه نگهداری نمی‌شوند)
+.env
+.env.local
+.env.*.local
+
+# دادهٔ اجرا اگر STUDIO_HOME عمداً داخل پروژه تنظیم شده باشد
+.studio/
+
+# گزارش‌ها و فایل‌های موقت
+*.log
+coverage/
+
+# لاگ تصمیم‌های نگهبان و تنظیمات شخصی Claude Code
+.claude/guard-log.jsonl
 .claude/settings.local.json
 
-# OS and editor files
+# فایل‌های سیستم‌عامل
 .DS_Store
 Thumbs.db
 desktop.ini

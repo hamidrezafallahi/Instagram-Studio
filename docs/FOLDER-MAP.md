@@ -2,7 +2,7 @@
 همهٔ پوشه‌ها README.md دارند. مسیرهای زیر محل افزودن کد توسط سازنده هستند؛ بستهٔ فعلی فقط Markdown است.
 
 ```text
-content-studio-blueprint/
+Instagram-Studio/   (ریشهٔ مخزن، ADR-029)
   agents/
   apps/
     api/

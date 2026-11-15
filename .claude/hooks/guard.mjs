@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Instagram Studio guard: PreToolUse hook (root CLAUDE.md, "Hard rules").
- * The file-based studio (v1) is retired; work happens in v2. This hook stays as the zero-spend and
+ * The file-based studio (v1) is retired; the studio app now lives at the repository root. This hook stays as the zero-spend and
  * no-direct-publish safety net for the Zernio and Canva connectors attached to Claude.
  *
  *   deny         the call is blocked before it reaches the tool; nothing the user clicks overrides it
@@ -44,7 +44,7 @@ const CONFIG = {
 const projectDir = () => process.env.CLAUDE_PROJECT_DIR || process.cwd();
 /**
  * Folder holding content/ and ops/approval-log.md. The file-based studio (v1) is retired: the project
- * now works through v2, whose own server-side approvals (ActionIntent) gate publishing. With no
+ * now works through the studio app, whose own server-side approvals (ActionIntent) gate publishing. With no
  * content files and no approval log here, every Zernio post write from Claude is denied (fail closed).
  */
 const studioDir = () => projectDir();
@@ -386,7 +386,7 @@ function gateCheck(id, needed, action, scheduledMs) {
     return deny(`${action} needs an explicit content ID: pass tags: ["IG-0xx"] (exactly one), or use a post_id recorded as zernio_post_id in a content file. Vague approvals such as "approve all" never authorise posts.`);
   }
   const file = fileForId(id);
-  if (!file) return deny(`${action}: no content file for ${id} under content/. Direct posting from Claude is retired with v1; publish through the v2 dashboard's approval queue or manually in the Instagram app.`);
+  if (!file) return deny(`${action}: no content file for ${id} under content/. Direct posting from Claude is retired with v1; publish through the studio dashboard's approval queue or manually in the Instagram app.`);
   const ap = approvalsFor(id);
   const missing = needed.filter((g) => !ap[g]);
   if (missing.length) {
