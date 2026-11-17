@@ -195,7 +195,7 @@ export interface Harness {
 }
 
 export async function createHarness(
-  options: { sampleData?: boolean; now?: string; browserPath?: string } = {},
+  options: { sampleData?: boolean; now?: string; browserPath?: string; ffmpegPath?: string } = {},
 ): Promise<Harness> {
   const database = await createTestDatabase();
   const logs: string[] = [];
@@ -221,6 +221,7 @@ export async function createHarness(
     textModel: 'template',
     openrouterModels: [],
     browserPath: options.browserPath,
+    ffmpegPath: options.ffmpegPath,
   };
   const assetRoot = await mkdtemp(join(tmpdir(), 'studio-test-assets-'));
   const studio = createStudioFromConfig({

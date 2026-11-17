@@ -117,7 +117,8 @@ export function slideHtml(ctx: SlideContext): string {
     </div>`
     : '';
 
-  const justify = slide.role === 'body' ? 'flex-start' : 'center';
+  // در قالب‌های بلند (استوری، ریلز) همه وسط‌چین؛ در پست و کاروسل بدنه از بالای صفحه.
+  const justify = slide.role === 'body' && spec.bands ? 'flex-start' : 'center';
   return `<!doctype html>
 <html lang="fa" dir="rtl"><head><meta charset="utf-8">
 <style>
@@ -139,7 +140,7 @@ body { background: ${bg}; color: ${fg}; font-family: 'Vazirmatn', sans-serif; po
 .cursor { display: inline-block; width: ${Math.round(size.cover * 0.14)}px; height: ${Math.round(size.cover * 0.62)}px;
   background: ${colors.signal}; margin-inline-start: ${Math.round(size.cover * 0.14)}px; vertical-align: -0.08em; }
 .kicker-lg { color: ${colors.signal}; font-size: 30px; text-align: right; }
-.numeral { color: ${colors.signal}; font-size: ${size.numeral}px; font-weight: 500; line-height: 1; text-align: right; }
+.numeral { color: ${colors.signal}; font-size: ${size.numeral}px; font-weight: 500; line-height: 1.3; text-align: right; }
 .title { font-weight: 800; font-size: ${size.title}px; line-height: 1.3; text-wrap: balance; }
 .body { font-weight: 400; font-size: ${size.body}px; line-height: 1.65; white-space: pre-line; color: ${fg}; }
 .cta { align-self: stretch; background: ${colors.signal}; color: ${ctaText}; font-weight: 800; font-size: ${size.cta}px;

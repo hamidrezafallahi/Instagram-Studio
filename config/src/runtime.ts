@@ -33,6 +33,9 @@ const RuntimeEnv = z.object({
   STUDIO_OPENROUTER_MODELS: z.string().min(1).optional(),
   /** مسیر Chrome/Edge برای رندر تصویر؛ خالی = جست‌وجوی مسیرهای معمول. */
   STUDIO_BROWSER_PATH: z.string().min(1).optional(),
+  /** مسیر ffmpeg و ffprobe برای ساخت ویدئو؛ خالی = همان نام در PATH. */
+  STUDIO_FFMPEG_PATH: z.string().min(1).default('ffmpeg'),
+  STUDIO_FFPROBE_PATH: z.string().min(1).default('ffprobe'),
 });
 
 /**
@@ -68,6 +71,9 @@ export interface RuntimeConfig {
   readonly openrouterModels: readonly string[];
   /** مسیر صریح مرورگر رندر؛ undefined = جست‌وجوی خودکار. */
   readonly browserPath?: string | undefined;
+  /** ابزار ویدئو؛ undefined = ffmpeg و ffprobe از PATH. */
+  readonly ffmpegPath?: string | undefined;
+  readonly ffprobePath?: string | undefined;
 }
 
 export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -140,5 +146,7 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
       ? value.STUDIO_OPENROUTER_MODELS.split(',').map((item) => item.trim()).filter(Boolean)
       : DEFAULT_OPENROUTER_MODELS,
     browserPath: value.STUDIO_BROWSER_PATH,
+    ffmpegPath: value.STUDIO_FFMPEG_PATH,
+    ffprobePath: value.STUDIO_FFPROBE_PATH,
   };
 }

@@ -14,7 +14,21 @@ import {
 } from './templates.ts';
 
 export { HtmlRenderer, findBrowser, type Viewport } from './browser.ts';
-export { parseVisual, type ParsedVisual, type Slide, type SlideRole, type VisualFormat } from './slides.ts';
+export {
+  cuesFor,
+  frameDuration,
+  parseReelScript,
+  parseVisual,
+  toSrt,
+  toVtt,
+  type Cue,
+  type ParsedVisual,
+  type ReelScript,
+  type Slide,
+  type SlideRole,
+  type TimedSlide,
+  type VisualFormat,
+} from './slides.ts';
 export { DEFAULT_VISUAL, FORMAT_SPECS, contrastRatio, slideHtml, type FormatSpec } from './templates.ts';
 
 /** نسخهٔ قالب‌ها؛ در فرادادهٔ هر دارایی رندرشده ثبت می‌شود تا بازتولید قابل ردیابی باشد. */
@@ -94,56 +108,80 @@ export function contrastChecks(visual: BrandVisual): QaCheck[] {
 export async function renderVisual(renderer: HtmlRenderer, request: VisualRequest): Promise<VisualResult> {
   const visual = request.visual ?? DEFAULT_VISUAL;
   const parsed = parseVisual(request.format, request.text);
-  const spec = FORMAT_SPECS[request.format];
-  const dark = request.format === 'reel' || (visual.dark_pillars ?? []).includes(request.pillar);
-  const kicker = visual.pillar_kickers?.[request.pillar] ?? null;
-  const total = parsed.slides.length;
+  const dark = isDark(request.format, request.pillar, visual);
+  const rendered = await renderSlides(renderer, { ...request, visual, slides: parsed.slides, dark });
+  const checks = slideChecks(rendered, request.format, visual, 'اسلاید');
+  return { format: request.format, slides: rendered, caption: parsed.caption, checks, dark };
+}
 
+export const isDark = (format: VisualFormat, pillar: string, visual: BrandVisual): boolean =>
+  format === 'reel' || (visual.dark_pillars ?? []).includes(pillar);
+
+/** رندر فهرست مشخصی از اسلایدها؛ متن هر اسلاید تا جاشدن کوچک می‌شود. */
+export async function renderSlides(
+  renderer: HtmlRenderer,
+  request: { format: VisualFormat; pillar: string; visual: BrandVisual; fontBase64: string; slides: readonly Slide[]; dark: boolean },
+): Promise<RenderedSlide[]> {
+  const { visual, format, slides, dark } = request;
+  const spec = FORMAT_SPECS[format];
+  const kicker = visual.pillar_kickers?.[request.pillar] ?? null;
+  const total = slides.length;
   const rendered: RenderedSlide[] = [];
   let bodyNumber = 0;
-  for (const [index, slide] of parsed.slides.entries()) {
+  for (const [index, slide] of slides.entries()) {
     if (slide.role === 'body') bodyNumber += 1;
     let result: RenderedSlide | null = null;
     for (const scale of FIT_SCALES) {
       const html = slideHtml({
-        slide, index, total, bodyNumber, format: request.format, visual, dark, kicker,
-        fontBase64: request.fontBase64, scale,
+        slide, index, total, bodyNumber, format, visual, dark, kicker, fontBase64: request.fontBase64, scale,
       });
-      const output = await renderer.render<Measure>(html, spec, measureExpression(request.format));
+      const output = await renderer.render<Measure>(html, spec, measureExpression(format));
       result = { slide, png: output.png, width: spec.width, height: spec.height, scale, measure: output.measure };
       if (output.measure.overflow.length === 0 && output.measure.outside.length === 0) break;
     }
     rendered.push(result as RenderedSlide);
   }
+  return rendered;
+}
 
-  const faNumber = (value: number): string => String(value).replace(/[0-9]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)] as string);
-  const label = (item: RenderedSlide, i: number): string => `اسلاید ${faNumber(i + 1)}: ${item.slide.title.slice(0, 60)}`;
+const faNumber = (value: number): string => String(value).replace(/[0-9]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)] as string);
+
+/** چک‌های QA بصری برای اسلایدهای رندرشده؛ `noun` در پیام‌ها («اسلاید» یا «فریم») می‌آید. */
+export function slideChecks(
+  rendered: readonly RenderedSlide[],
+  format: VisualFormat,
+  visual: BrandVisual,
+  noun: 'اسلاید' | 'فریم',
+): QaCheck[] {
+  const total = rendered.length;
+  const label = (item: RenderedSlide): string =>
+    `${noun} ${faNumber(rendered.indexOf(item) + 1)}: ${item.slide.title.slice(0, 60)}`;
   const overflowed = rendered.filter((item) => item.measure.overflow.length > 0);
   const outside = rendered.filter((item) => item.measure.outside.length > 0);
   const small = rendered.filter((item) => item.measure.minFont < MIN_FONT_PX);
   const shrunk = rendered.filter((item) => item.scale < 1);
-  const checks: QaCheck[] = [
+  return [
     check(
       'visual_slides',
       'error',
       total > 0,
       total > 0
-        ? `${total} تصویر از متن ساخته شد.`
-        : 'هیچ اسلایدی در متن پیدا نشد؛ ساختار «اسلاید ۱ (کاور): …» یا «فریم ۱: …» لازم است.',
+        ? `${faNumber(total)} تصویر از متن ساخته شد.`
+        : 'هیچ اسلایدی در متن پیدا نشد؛ ساختار «اسلاید ۱ (کاور): …»، «فریم ۱: …» یا «بخش ۱ — …:» لازم است.',
     ),
     check(
       'visual_overflow',
       'error',
       overflowed.length === 0,
-      overflowed.length === 0 ? 'متن همهٔ اسلایدها در کادر جا شد.' : `متن در کادر جا نشد؛ کوتاه یا دو اسلاید شود.`,
-      overflowed.map((item) => label(item, rendered.indexOf(item))).join(' | '),
+      overflowed.length === 0 ? `متن همهٔ ${noun}ها در کادر جا شد.` : `متن در کادر جا نشد؛ کوتاه یا دو ${noun} شود.`,
+      overflowed.map(label).join(' | '),
     ),
     check(
       'visual_safe_area',
       'error',
       outside.length === 0,
       outside.length === 0 ? 'متن در ناحیهٔ امن است.' : 'بخشی از متن بیرون از ناحیهٔ امن است.',
-      outside.map((item) => `${label(item, rendered.indexOf(item))} (${item.measure.outside.join('، ')})`).join(' | '),
+      outside.map((item) => `${label(item)} (${item.measure.outside.join('، ')})`).join(' | '),
     ),
     check(
       'visual_min_font',
@@ -155,12 +193,11 @@ export async function renderVisual(renderer: HtmlRenderer, request: VisualReques
       'visual_fit',
       'info',
       shrunk.length === 0,
-      shrunk.length === 0 ? 'هیچ متنی کوچک نشد.' : `متن ${shrunk.length} اسلاید برای جاشدن کوچک شد؛ متن کوتاه‌تر خواناتر است.`,
+      shrunk.length === 0 ? 'هیچ متنی کوچک نشد.' : `متن ${faNumber(shrunk.length)} ${noun} برای جاشدن کوچک شد؛ متن کوتاه‌تر خواناتر است.`,
     ),
-    ...(request.format === 'carousel'
+    ...(format === 'carousel'
       ? [check('visual_slide_count', 'warning', total <= 20, total <= 20 ? 'تعداد اسلاید در سقف رایج کاروسل است.' : `کاروسل ${total} اسلاید دارد؛ پیش از انتشار سقف فعلی پلتفرم را بررسی کنید.`)]
       : []),
     ...contrastChecks(visual),
   ];
-  return { format: request.format, slides: rendered, caption: parsed.caption, checks, dark };
 }

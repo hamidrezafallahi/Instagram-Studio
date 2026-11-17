@@ -1,4 +1,4 @@
-import { StudioError, type QaCheck, type QaResult } from '@studio/contracts';
+import { StudioError, type BrandVisual, type QaCheck, type QaResult } from '@studio/contracts';
 import { assetRepo, contentRepo, planRepo, type Tx } from '@studio/data';
 import {
   CONTENT_EDITABLE_STATES,
@@ -8,19 +8,34 @@ import {
   hashContentRevision,
 } from '@studio/domain';
 import {
+  DEFAULT_VISUAL,
   HtmlRenderer,
   TEMPLATE_VERSION,
+  VIDEO_VERSION,
   VISUAL_QA_VERSION,
+  cuesFor,
+  encodeSlideshow,
   isVisualFormat,
+  parseReelScript,
+  probeMedia,
+  renderSlides,
   renderVisual,
+  slideChecks,
+  toSrt,
+  toVtt,
+  videoChecks,
+  videoToolsAvailable,
   type StoredFile,
+  type TimedSlide,
+  type VideoTools,
+  type VisualResult,
 } from '@studio/media';
 import type { RenderCandidate, RenderOutcome } from '@studio/workflows';
 import type { BrandService } from './brands.ts';
 import { audit, notFound, type BrandCall, type StudioDeps } from './context.ts';
 import type { PlanningHooks } from './planning.ts';
 
-const RENDER_LICENSE = 'رندر قالب استودیو از متن همین محتوا؛ فونت Vazirmatn (SIL OFL 1.1)';
+const RENDER_LICENSE = 'رندر قالب استودیو از متن همین محتوا؛ فونت Vazirmatn (SIL OFL 1.1)؛ بدون موسیقی';
 
 /** وضعیت QA پس از ادغام چک‌های متنی قبلی با چک‌های بصری تازه. */
 export function mergeQa(previous: QaResult, visual: QaCheck[], checkedAt: string): QaResult {
@@ -33,6 +48,88 @@ export function mergeQa(previous: QaResult, visual: QaCheck[], checkedAt: string
     qa_version: `${baseVersion}+${VISUAL_QA_VERSION}`,
     checked_at: checkedAt,
     checks,
+  };
+}
+
+interface RenderedOutput {
+  kind: 'image' | 'video' | 'subtitle';
+  mime: string;
+  data: Buffer;
+  width: number | null;
+  height: number | null;
+  duration_ms: number | null;
+  filename: string;
+  label_fa: string;
+  metadata: Record<string, unknown>;
+}
+
+/**
+ * ریلز (M3.4): ویدئوی اسلایدی از بخش‌های اسکریپت + کاور + زیرنویس SRT/VTT هم‌زمان با فریم‌ها.
+ * ترتیب دارایی‌ها: ویدئو، کاور، SRT، VTT. QA شامل چک‌های بصری همهٔ فریم‌ها و چک فنی خود فایل MP4 است.
+ */
+async function reelOutputs(
+  renderer: HtmlRenderer,
+  cover: VisualResult,
+  text: string,
+  pillar: string,
+  visual: BrandVisual,
+  fontBase64: string,
+  tools: VideoTools,
+): Promise<{ outputs: RenderedOutput[]; checks: QaCheck[] }> {
+  const script = parseReelScript(text);
+  const coverSlide = cover.slides[0];
+  const coverOutput: RenderedOutput[] = coverSlide
+    ? [{
+        kind: 'image', mime: 'image/png', data: coverSlide.png, width: coverSlide.width, height: coverSlide.height,
+        duration_ms: null, filename: 'reel-cover.png', label_fa: 'کاور ریلز',
+        metadata: { role: 'cover', scale: coverSlide.scale },
+      }]
+    : [];
+  if (script.frames.length === 0) {
+    return {
+      outputs: coverOutput,
+      checks: [
+        ...cover.checks,
+        {
+          id: 'video_script', severity: 'error', passed: false,
+          message_fa: 'اسکریپت ریلز «قلاب» یا «بخش ۱ — …:» ندارد؛ ویدئو ساخته نشد.',
+        },
+      ],
+    };
+  }
+  const frames = await renderSlides(renderer, { format: 'reel', pillar, visual, fontBase64, slides: script.frames, dark: true });
+  const video = await encodeSlideshow(
+    tools,
+    frames.map((frame, index) => ({ png: frame.png, duration_s: (script.frames[index] as TimedSlide).duration_s })),
+  );
+  const probe = await probeMedia(tools, video);
+  const cues = cuesFor(script.frames);
+  const total = script.frames.reduce((sum, frame) => sum + frame.duration_s, 0);
+  const checks: QaCheck[] = [
+    ...slideChecks(coverSlide ? [coverSlide, ...frames] : frames, 'reel', visual, 'فریم'),
+    ...videoChecks(probe, { width: 1080, height: 1920, duration_s: total, cues: cues.length, frames: frames.length }),
+  ];
+  const durations = script.frames.map((frame) => frame.duration_s);
+  return {
+    checks,
+    outputs: [
+      {
+        kind: 'video', mime: 'video/mp4', data: video, width: probe.width, height: probe.height,
+        duration_ms: probe.duration_ms, filename: 'reel.mp4', label_fa: 'ویدئوی ریلز',
+        metadata: { video_version: VIDEO_VERSION, frames: frames.length, durations_s: durations },
+      },
+      ...coverOutput,
+      {
+        kind: 'subtitle', mime: 'application/x-subrip', data: Buffer.from(toSrt(cues), 'utf8'), width: null,
+        height: null, duration_ms: probe.duration_ms, filename: 'reel.fa.srt', label_fa: 'زیرنویس SRT',
+        metadata: { cues: cues.length },
+      },
+      {
+        kind: 'subtitle', mime: 'text/vtt', data: Buffer.from(toVtt(cues), 'utf8'), width: null, height: null,
+        duration_ms: probe.duration_ms, filename: 'reel.fa.vtt', label_fa: 'زیرنویس VTT',
+        metadata: { cues: cues.length },
+      },
+    ],
   };
 }
 
@@ -109,6 +206,13 @@ export function createVisualService(deps: StudioDeps, brands: BrandService, hook
           action_required: 'Chrome یا Edge را نصب کنید یا مسیرش را در STUDIO_BROWSER_PATH بگذارید.',
         });
       }
+      const tools = deps.render.video;
+      if (format === 'reel' && !(await videoToolsAvailable(tools))) {
+        throw new StudioError('UNSUPPORTED_CAPABILITY', {
+          message_fa: 'FFmpeg روی این دستگاه پیدا نشد؛ ساخت ویدئوی ریلز ممکن نیست.',
+          action_required: 'FFmpeg را نصب کنید یا مسیرش را در STUDIO_FFMPEG_PATH و STUDIO_FFPROBE_PATH بگذارید.',
+        });
+      }
       let renderer: HtmlRenderer;
       try {
         renderer = await HtmlRenderer.launch(deps.render.browserPath);
@@ -116,22 +220,44 @@ export function createVisualService(deps: StudioDeps, brands: BrandService, hook
         deps.logger.error({ err: error, trace_id: call.trace_id }, 'renderer launch failed');
         throw new StudioError('PROVIDER_UNAVAILABLE', { message_fa: 'مرورگر رندر اجرا نشد.' });
       }
-      let result;
+      const visual = snapshot.profile.visual ?? DEFAULT_VISUAL;
+      const fontBase64 = deps.render.fontBase64();
+      let outputs: RenderedOutput[];
+      let checks: QaCheck[];
       try {
-        result = await renderVisual(renderer, {
+        const cover = await renderVisual(renderer, {
           format,
           text: snapshot.current.text,
           pillar: snapshot.item.pillar,
-          visual: snapshot.profile.visual,
-          fontBase64: deps.render.fontBase64(),
+          visual,
+          fontBase64,
         });
+        if (format === 'reel') {
+          ({ outputs, checks } = await reelOutputs(
+            renderer, cover, snapshot.current.text, snapshot.item.pillar, visual, fontBase64, tools,
+          ));
+        } else {
+          outputs = cover.slides.map((slide, index) => ({
+            kind: 'image',
+            mime: 'image/png',
+            data: slide.png,
+            width: slide.width,
+            height: slide.height,
+            duration_ms: null,
+            filename: `${format}-${String(index + 1).padStart(2, '0')}.png`,
+            label_fa: `تصویر ${faDigits(index + 1)}`,
+            metadata: { slide_index: index, role: slide.slide.role, scale: slide.scale },
+          }));
+          checks = cover.checks;
+        }
       } catch (error) {
+        if (error instanceof StudioError) throw error;
         deps.logger.error({ err: error, trace_id: call.trace_id, content_id: contentId }, 'render failed');
-        throw new StudioError('PROVIDER_UNAVAILABLE', { message_fa: 'رندر تصویر این محتوا شکست خورد.' });
+        throw new StudioError('PROVIDER_UNAVAILABLE', { message_fa: 'رندر تصویر یا ویدئوی این محتوا شکست خورد.' });
       } finally {
         await renderer.close();
       }
-      if (result.slides.length === 0) {
+      if (outputs.length === 0) {
         return {
           content_id: contentId,
           slides: 0,
@@ -141,7 +267,7 @@ export function createVisualService(deps: StudioDeps, brands: BrandService, hook
       }
 
       const stored: StoredFile[] = [];
-      for (const slide of result.slides) stored.push(await deps.assets.put(call.workspace_id, call.brand_id, slide.png));
+      for (const output of outputs) stored.push(await deps.assets.put(call.workspace_id, call.brand_id, output.data));
 
       return deps.db.tenant(scopeOf(call), async (tx) => {
         const item = await contentRepo.getContentItem(tx, contentId);
@@ -149,22 +275,22 @@ export function createVisualService(deps: StudioDeps, brands: BrandService, hook
           throw new StudioError('STALE_REVISION', { message_fa: 'محتوا هنگام ساخت تصویر تغییر کرد؛ دوباره اجرا کنید.' });
         }
         const assetIds: string[] = [];
-        for (const [index, slide] of result.slides.entries()) {
+        for (const [index, output] of outputs.entries()) {
           const file = stored[index] as StoredFile;
           const { record } = await assetRepo.insertAsset(tx, {
             workspace_id: call.workspace_id,
             brand_id: call.brand_id,
-            kind: 'image',
+            kind: output.kind,
             provenance: 'rendered',
-            mime: 'image/png',
+            mime: output.mime,
             byte_size: file.byte_size,
             checksum: file.checksum,
-            width: slide.width,
-            height: slide.height,
-            duration_ms: null,
+            width: output.width,
+            height: output.height,
+            duration_ms: output.duration_ms,
             language: 'fa',
-            filename: `${format}-${String(index + 1).padStart(2, '0')}.png`,
-            title_fa: `${item.title_fa.slice(0, 150)} — تصویر ${faDigits(index + 1)}`,
+            filename: output.filename,
+            title_fa: `${item.title_fa.slice(0, 150)} — ${output.label_fa}`,
             license: RENDER_LICENSE,
             consent: 'not_applicable',
             storage_key: file.storage_key,
@@ -174,9 +300,7 @@ export function createVisualService(deps: StudioDeps, brands: BrandService, hook
               template_version: TEMPLATE_VERSION,
               content_id: contentId,
               source_revision: snapshot.current.revision,
-              slide_index: index,
-              role: slide.slide.role,
-              scale: slide.scale,
+              ...output.metadata,
             },
             is_sample: snapshot.is_sample,
             created_by: createdBy,
@@ -187,7 +311,7 @@ export function createVisualService(deps: StudioDeps, brands: BrandService, hook
           return { content_id: contentId, slides: assetIds.length, qa_status: item.qa_status, skipped_reason_fa: 'تصویرها تغییری نکردند.' };
         }
 
-        const qa = mergeQa(snapshot.current.qa_result, result.checks, deps.now().toISOString());
+        const qa = mergeQa(snapshot.current.qa_result, checks, deps.now().toISOString());
         const finalState = qa.status === 'fail' ? 'needs_revision' : 'ready_for_review';
         assertTransition(contentMachine, item.state, 'validating');
         assertTransition(contentMachine, 'validating', finalState);

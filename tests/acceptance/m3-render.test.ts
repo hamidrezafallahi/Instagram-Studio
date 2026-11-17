@@ -73,7 +73,8 @@ describe('run ساخت تصویر', () => {
   });
 
   it('هر اسلاید یک PNG واقعی با ابعاد قالب است و نسخهٔ تازه همان متن را دارد', async () => {
-    for (const item of rendered) {
+    // ریلز ویدئو و زیرنویس هم دارد و در m3-video.test.ts سنجیده می‌شود.
+    for (const item of rendered.filter((entry) => entry.format !== 'reel')) {
       const content = await detail(item.id);
       const [current, previous] = content.revisions;
       assert.ok(current && previous);

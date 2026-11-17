@@ -8,7 +8,7 @@ import {
   type Role,
 } from '@studio/contracts';
 import { recordRepo, type AuditInput, type Database, type Tx } from '@studio/data';
-import type { AssetStore } from '@studio/media';
+import type { AssetStore, VideoTools } from '@studio/media';
 import type { Logger, Vault } from '@studio/security';
 
 /** وابستگی‌های مشترک همهٔ سرویس‌ها؛ در composition root هر برنامه (API، worker، MCP) ساخته می‌شود. */
@@ -22,7 +22,7 @@ export interface StudioDeps {
   /** ذخیرهٔ فایل دارایی‌ها (STUDIO_HOME/assets). */
   assets: AssetStore;
   /** رندر تصویر: مسیر مرورگر (null یعنی ساخت تصویر در دسترس نیست) و فونت قالب‌ها. */
-  render: { browserPath: string | null; fontBase64: () => string };
+  render: { browserPath: string | null; fontBase64: () => string; video: VideoTools };
   logger: Logger;
   settings: {
     profile: 'local' | 'server';

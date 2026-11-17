@@ -128,6 +128,7 @@ export function createStudioFromConfig(options: StudioOptions): Studio {
     assets: new AssetStore(options.assetRoot ?? join(config.home, 'assets')),
     render: {
       browserPath: findBrowser(config.browserPath),
+      video: { ffmpeg: config.ffmpegPath ?? 'ffmpeg', ffprobe: config.ffprobePath ?? 'ffprobe' },
       fontBase64: (() => {
         let cached: string | null = null;
         return () => (cached ??= loadVazirmatn(config.repoRoot));

@@ -5,7 +5,15 @@ import {
   type UploadAssetQuery,
 } from '@studio/contracts';
 import { assetRepo } from '@studio/data';
-import { MAX_BYTES, MAX_IMAGE_SIDE, sniffMedia, type MediaFamily } from '@studio/media';
+import {
+  MAX_BYTES,
+  MAX_IMAGE_SIDE,
+  probeMedia,
+  sniffMedia,
+  videoToolsAvailable,
+  type MediaFamily,
+  type VideoProbe,
+} from '@studio/media';
 import type { BrandService } from './brands.ts';
 import { audit, notFound, type BrandCall, type StudioDeps } from './context.ts';
 
@@ -75,6 +83,18 @@ export function createAssetService(deps: StudioDeps, brands: BrandService) {
         throw invalid(`ابعاد تصویر (${sniffed.width}×${sniffed.height}) پذیرفته نیست.`);
       }
 
+      // ویدئو و صدا با ffprobe سنجیده می‌شوند: مدت و ابعاد واقعی ثبت و فایل خراب رد می‌شود.
+      // اگر FFmpeg نصب نباشد فایل پذیرفته می‌شود ولی مدتش خالی می‌ماند (صادقانه، نه حدسی).
+      let probe: VideoProbe | null = null;
+      if ((family === 'video' || family === 'audio') && (await videoToolsAvailable(deps.render.video))) {
+        try {
+          probe = await probeMedia(deps.render.video, data, sniffed.ext);
+        } catch {
+          throw invalid('فایل ویدئو یا صدا خوانا نیست یا آسیب دیده است.');
+        }
+        if (family === 'video' && (!probe.width || !probe.height)) throw invalid('در این فایل تصویر ویدئویی پیدا نشد.');
+      }
+
       return deps.db.tenant({ workspaceId: call.workspace_id, brandId: call.brand_id }, async (tx) => {
         const brand = await brands.load(tx, call.brand_id);
         let parentId: string | null = null;
@@ -96,9 +116,9 @@ export function createAssetService(deps: StudioDeps, brands: BrandService) {
           mime: sniffed.mime,
           byte_size: stored.byte_size,
           checksum: stored.checksum,
-          width: sniffed.width,
-          height: sniffed.height,
-          duration_ms: null,
+          width: sniffed.width ?? probe?.width ?? null,
+          height: sniffed.height ?? probe?.height ?? null,
+          duration_ms: probe?.duration_ms ?? null,
           language: query.language ?? null,
           filename,
           title_fa: query.title_fa ?? filename,

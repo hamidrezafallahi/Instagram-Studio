@@ -24,3 +24,29 @@ export {
   type VisualRequest,
   type VisualResult,
 } from './render/index.ts';
+export {
+  cuesFor,
+  frameDuration,
+  isDark,
+  parseReelScript,
+  renderSlides,
+  slideChecks,
+  toSrt,
+  toVtt,
+  type Cue,
+  type ReelScript,
+  type TimedSlide,
+} from './render/index.ts';
+export {
+  TRANSITION_S,
+  VIDEO_FPS,
+  VIDEO_VERSION,
+  encodeSlideshow,
+  probeMedia,
+  slideshowArgs,
+  videoChecks,
+  videoToolsAvailable,
+  type VideoFrame,
+  type VideoProbe,
+  type VideoTools,
+} from './video.ts';
