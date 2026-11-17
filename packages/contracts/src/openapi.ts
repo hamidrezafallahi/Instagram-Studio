@@ -3,6 +3,7 @@ import {
   API_VERSION,
   assetFileRoute,
   assetUploadRoute,
+  contentPackageRoute,
   reportExportRoute,
   routes,
   type RouteDef,
@@ -182,6 +183,22 @@ export function buildOpenApiDocument(): Json {
         content: { 'application/json': { schema: toSchema(assetUploadRoute.response, 'output', components) } },
       },
       ...errorResponses(assetUploadRoute.errors),
+    },
+  };
+
+  paths[contentPackageRoute.path] = {
+    get: {
+      operationId: contentPackageRoute.id,
+      tags: [contentPackageRoute.tag],
+      summary: contentPackageRoute.summary_fa,
+      'x-scope': contentPackageRoute.scope,
+      'x-min-role': contentPackageRoute.min_role,
+      security: [{ sessionCookie: [] }],
+      parameters: paramList({ ...contentPackageRoute, response: z.string(), errors: [] } as unknown as RouteDef, components),
+      responses: {
+        '200': { description: 'فایل ZIP بستهٔ انتشار دستی', content: { 'application/zip': { schema: { type: 'string', format: 'binary' } } } },
+        ...errorResponses(['UNAUTHENTICATED', 'FORBIDDEN', 'NOT_FOUND', 'VALIDATION_FAILED']),
+      },
     },
   };
 

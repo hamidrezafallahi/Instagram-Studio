@@ -81,6 +81,7 @@ export function RunLauncher({
   params,
   weekOf,
   entryIds,
+  contentIds,
   label,
   variant = 'default',
   disabledReason,
@@ -90,6 +91,8 @@ export function RunLauncher({
   params: { workspace_id: string; brand_id: string };
   weekOf?: string | undefined;
   entryIds?: string[] | undefined;
+  /** render_visuals: محتواهای انتخابی. */
+  contentIds?: string[] | undefined;
   label?: string;
   variant?: 'default' | 'primary';
   disabledReason?: string | undefined;
@@ -109,6 +112,7 @@ export function RunLauncher({
         params: {
           ...(weekOf ? { week_of: weekOf } : {}),
           ...(entryIds?.length ? { schedule_entry_ids: entryIds } : {}),
+          ...(contentIds?.length ? { content_ids: contentIds } : {}),
         },
       },
     });

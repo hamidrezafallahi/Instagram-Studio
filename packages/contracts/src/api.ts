@@ -1389,6 +1389,21 @@ export const assetUploadRoute = {
   errors: [...WRITE_ERRORS, 'INVALID_MEDIA', 'CROSS_BRAND_REFERENCE'],
 } as const;
 
+/**
+ * «بستهٔ انتشار دستی» نسخهٔ جاری یک محتوا: ZIP شامل دارایی‌ها به ترتیب، کپشن، متن کامل و راهنما.
+ * فقط دانلود است و چیزی منتشر نمی‌کند؛ انتشار را مالک خودش در اپ یا پنل سرویس انجام می‌دهد.
+ */
+export const contentPackageRoute = {
+  id: 'downloadContentPackage',
+  method: 'GET',
+  path: `${BRAND}/content/{content_id}/package`,
+  tag: 'content',
+  summary_fa: 'دانلود بستهٔ انتشار دستی (ZIP) نسخهٔ جاری محتوا',
+  scope: 'brand',
+  min_role: 'viewer',
+  params: BrandParams.extend({ content_id: Uuid }),
+} as const;
+
 /** دانلود فایل یک دارایی؛ فقط با نشست مالک یا عضو برند و هرگز با نشانی عمومی. */
 export const assetFileRoute = {
   id: 'getAssetFile',

@@ -32,13 +32,16 @@ export default function StudioPage() {
         title="استودیو"
         description="هر محتوا نسخه‌های immutable دارد: ویرایش، نسخهٔ تازه با بازبینی خودکار دوباره می‌سازد و نسخهٔ قبلی دست‌نخورده می‌ماند."
         actions={
-          <RunLauncher
-            intent="generate_drafts"
-            params={params}
-            variant="primary"
-            disabledReason={summary && !summary.readiness.draft_ready ? 'ابتدا اطلاعات ضروری برند را کامل کنید.' : undefined}
-            onFinished={content.reload}
-          />
+          <>
+            <RunLauncher
+              intent="generate_drafts"
+              params={params}
+              variant="primary"
+              disabledReason={summary && !summary.readiness.draft_ready ? 'ابتدا اطلاعات ضروری برند را کامل کنید.' : undefined}
+              onFinished={content.reload}
+            />
+            <RunLauncher intent="render_visuals" params={params} onFinished={content.reload} />
+          </>
         }
       />
       <div className="row" role="group" aria-label="فیلتر وضعیت">

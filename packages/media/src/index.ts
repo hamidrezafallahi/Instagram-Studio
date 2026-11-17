@@ -50,3 +50,4 @@ export {
   type VideoProbe,
   type VideoTools,
 } from './video.ts';
+export { buildZip, crc32, type ZipEntry } from './zip.ts';

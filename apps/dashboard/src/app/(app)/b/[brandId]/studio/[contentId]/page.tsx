@@ -22,13 +22,14 @@ import {
   Tabs,
   Toast,
 } from '@/components/ui.tsx';
+import { AssetsPanel } from '@/components/assets.tsx';
 import { PublishPanel } from '@/components/publishing.tsx';
 import { api } from '@/lib/api.ts';
 import { useBrand } from '@/lib/brand.ts';
 import { faNumber, formatDateTime } from '@/lib/format.ts';
 import { useMutation, useQuery } from '@/lib/hooks.ts';
 
-type Panel = 'edit' | 'preview' | 'compare' | 'sources';
+type Panel = 'edit' | 'files' | 'preview' | 'compare' | 'sources';
 const EDITABLE = new Set(['ready_for_review', 'needs_revision', 'approved', 'scheduled', 'blocked']);
 const GENERATOR_FA = { template: 'تولید قالبی محلی', model: 'مدل زبانی', human: 'ویرایش انسانی' } as const;
 const CLAIM_FA = { supported: 'دارای مدرک', needs_verification: 'نیاز به بررسی', forbidden: 'ممنوع' } as const;
@@ -202,6 +203,7 @@ export default function ContentDetailPage() {
                   onChange={setPanel}
                   tabs={[
                     { id: 'edit', label: 'متن' },
+                    { id: 'files', label: 'تصویر و فایل', badge: <Badge>{faNumber(revision.asset_ids.length)}</Badge> },
                     { id: 'preview', label: 'پیش‌نمایش' },
                     { id: 'compare', label: 'مقایسهٔ نسخه‌ها', badge: <Badge>{faNumber(data.revisions.length)}</Badge> },
                     { id: 'sources', label: 'بریف و منابع' },
@@ -220,9 +222,18 @@ export default function ContentDetailPage() {
                     }}
                   />
                 ) : null}
+                {panel === 'files' ? (
+                  <AssetsPanel
+                    detail={data}
+                    onChanged={(next) => {
+                      content.setData(next);
+                      setToast(`نسخهٔ ${faNumber(next.item.current_revision)} با تصویرهای تازه ثبت شد.`);
+                    }}
+                  />
+                ) : null}
                 {panel === 'preview' ? (
                   <div className="stack">
-                    <p className="small muted">پیش‌نمایش سادهٔ متن؛ ظاهر نهایی در هر شبکه متفاوت است و رندر تصویر و ویدئو در مرحلهٔ M3 اضافه می‌شود.</p>
+                    <p className="small muted">پیش‌نمایش سادهٔ متن؛ ظاهر نهایی در هر شبکه متفاوت است. تصویر و ویدئو در زبانهٔ «تصویر و فایل» است.</p>
                     <div className="preview">
                       <div className="preview__screen" dir="auto">
                         {revision.text}
@@ -310,7 +321,7 @@ export default function ContentDetailPage() {
                       <li key={item.revision}>
                         <div className="row row--between">
                           <span>نسخهٔ {faNumber(item.revision)}</span>
-                          <Badge>{GENERATOR_FA[item.generator.kind]}</Badge>
+                          <Badge>{item.generator.provider === 'local-renderer' ? 'ساخت تصویر' : GENERATOR_FA[item.generator.kind]}</Badge>
                         </div>
                         <div className="small muted">
                           {formatDateTime(item.created_at, calendar, timezone)}

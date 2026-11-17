@@ -1,13 +1,20 @@
 import {
+  CHANNEL_LABEL_FA,
+  CONTENT_STATE_LABEL_FA,
+  FORMAT_LABEL_FA,
   StudioError,
   type AssetKind,
   type AssetView,
   type UploadAssetQuery,
 } from '@studio/contracts';
-import { assetRepo } from '@studio/data';
+import { assetRepo, contentRepo } from '@studio/data';
 import {
   MAX_BYTES,
   MAX_IMAGE_SIDE,
+  buildZip,
+  isVisualFormat,
+  parseVisual,
+  type ZipEntry,
   probeMedia,
   sniffMedia,
   videoToolsAvailable,
@@ -140,6 +147,81 @@ export function createAssetService(deps: StudioDeps, brands: BrandService) {
         });
         return record.view;
       });
+    },
+
+    /**
+     * بستهٔ انتشار دستی نسخهٔ جاری: دارایی‌ها به ترتیب (۰۱-…)، caption.txt، draft.txt و README.txt.
+     * فقط دانلود است؛ هشدار تأییدنشده یا QA ناموفق در README صریح نوشته می‌شود و دانلود را مسدود نمی‌کند.
+     */
+    async contentPackage(call: BrandCall, contentId: string): Promise<{ filename: string; data: Buffer }> {
+      const snapshot = await deps.db.tenant({ workspaceId: call.workspace_id, brandId: call.brand_id }, async (tx) => {
+        const item = await contentRepo.getContentItem(tx, contentId);
+        const [current] = item ? await contentRepo.listRevisions(tx, contentId) : [];
+        if (!item || !current) throw notFound('محتوا');
+        const records = [];
+        for (const id of current.asset_ids) {
+          const record = await assetRepo.getAsset(tx, id);
+          if (record) records.push(record);
+        }
+        const brand = await brands.load(tx, call.brand_id);
+        await audit(tx, call, {
+          action: 'content.package.download',
+          target_type: 'content',
+          target_id: contentId,
+          outcome: 'succeeded',
+          metadata: { revision: current.revision, assets: records.length, state: item.state },
+        });
+        return { item, current, records, brand_name: brand.row.name };
+      });
+      const { item, current, records } = snapshot;
+
+      const entries: ZipEntry[] = [];
+      const listed: string[] = [];
+      for (const [index, record] of records.entries()) {
+        const name = `${String(index + 1).padStart(2, '0')}-${record.view.filename}`;
+        entries.push({ name, data: await deps.assets.read(record.storage_key, record.view.checksum) });
+        listed.push(`${name} — ${record.view.title_fa}${record.view.duration_ms ? ` (${(record.view.duration_ms / 1000).toFixed(1)} ثانیه)` : ''}`);
+      }
+      const caption = isVisualFormat(item.format) ? parseVisual(item.format, current.text).caption : null;
+      entries.push({ name: 'caption.txt', data: Buffer.from(`${caption ?? current.text}\n`, 'utf8') });
+      entries.push({ name: 'draft.txt', data: Buffer.from(`${current.text}\n`, 'utf8') });
+
+      const warnings: string[] = [];
+      if (item.state !== 'approved' && item.state !== 'scheduled') {
+        warnings.push(`این نسخه در استودیو هنوز تأیید نشده است (وضعیت: ${CONTENT_STATE_LABEL_FA[item.state]}). پیش از انتشار آن را بازبینی کنید.`);
+      }
+      if (current.qa_result.status === 'fail') {
+        warnings.push('بازبینی خودکار این نسخه ایراد «باید اصلاح شود» دارد.');
+      }
+      if (/〔[^〕]*〕/.test(current.text)) warnings.push('متن هنوز جای خالی 〔اطلاعات مالک لازم است〕 دارد.');
+      if (item.is_sample) warnings.push('این محتوای نمونه است و نباید منتشر شود.');
+      if (isVisualFormat(item.format) && records.length === 0) warnings.push('این نسخه هنوز تصویر یا ویدئو ندارد؛ ابتدا «ساخت تصویر» را اجرا کنید.');
+
+      const readme = [
+        `بستهٔ انتشار دستی — ${item.title_fa}`,
+        '',
+        `برند: ${snapshot.brand_name}`,
+        `کانال و قالب: ${CHANNEL_LABEL_FA[item.channel]} · ${FORMAT_LABEL_FA[item.format]}`,
+        `نسخه: ${current.revision} · هش: ${current.hash}`,
+        `بازبینی خودکار: ${current.qa_result.status}`,
+        '',
+        ...(warnings.length ? ['هشدار:', ...warnings.map((line) => `- ${line}`), ''] : []),
+        'فایل‌ها:',
+        ...(listed.length ? listed.map((line) => `- ${line}`) : ['- (بدون تصویر یا ویدئو)']),
+        '- caption.txt — متن کپشن برای کپی',
+        '- draft.txt — متن کامل همین نسخه',
+        '',
+        'انتشار دستی:',
+        '۱. فایل‌ها را به همان ترتیب شماره در اپ اینستاگرام یا پنل سرویس انتشار خودتان بارگذاری کنید.',
+        '۲. متن caption.txt را کپی کنید و پیش از ارسال یک بار بخوانید.',
+        '۳. برای ریلز، کاور را از فایل کاور انتخاب کنید؛ زیرنویس SRT/VTT اختیاری است.',
+        '۴. اگر پس از دانلود چیزی را در استودیو تغییر دادید، بستهٔ تازه بگیرید؛ این بسته فقط همین نسخه است.',
+        '',
+        'استودیو این بسته را منتشر نکرده و چیزی از طرف شما ارسال نمی‌کند.',
+      ].join('\n');
+      entries.push({ name: 'README.txt', data: Buffer.from(`${readme}\n`, 'utf8') });
+
+      return { filename: `content-${contentId.slice(0, 8)}-v${current.revision}.zip`, data: buildZip(entries) };
     },
 
     /** فایل دارایی، فقط پس از بررسی عضویت برند (RLS) و تطبیق checksum. */

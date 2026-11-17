@@ -5,6 +5,7 @@ import {
   StudioError,
   assetFileRoute,
   assetUploadRoute,
+  contentPackageRoute,
   isStudioError,
   reportExportRoute,
   routes,
@@ -410,6 +411,22 @@ export async function buildApp(options: ApiOptions): Promise<FastifyInstance> {
         request.body,
       );
       return reply.code(assetUploadRoute.success_status).send(assetUploadRoute.response.parse(asset));
+    },
+  });
+
+  app.route({
+    method: contentPackageRoute.method,
+    url: fastifyPath(contentPackageRoute.path),
+    handler: async (request, reply) => {
+      const secured = await secure(contentPackageRoute, request);
+      const file = await studio.assets.contentPackage(
+        calls(secured.access, secured.session, request.id).brand(),
+        secured.params['content_id'] as string,
+      );
+      return reply
+        .header('content-type', 'application/zip')
+        .header('content-disposition', `attachment; filename="${file.filename}"`)
+        .send(file.data);
     },
   });
 

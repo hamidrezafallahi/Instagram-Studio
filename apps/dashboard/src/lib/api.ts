@@ -1,5 +1,10 @@
 import {
+  assetFileRoute,
+  assetUploadRoute,
+  contentPackageRoute,
   reportExportRoute,
+  type AssetView,
+  type UploadAssetQuery,
   routes,
   type ApiError,
   type ErrorCode,
@@ -119,6 +124,51 @@ export function reportExportUrl(
   query: { week_of?: string; format: 'csv' | 'json' },
 ): string {
   return buildUrl(reportExportRoute.path, params, query);
+}
+
+/** نشانی فایل یک دارایی (تصویر، ویدئو، زیرنویس) از مسیر پروکسی همان مبدأ؛ کوکی نشست لازم است. */
+export function assetFileUrl(params: { workspace_id: string; brand_id: string }, assetId: string): string {
+  return buildUrl(assetFileRoute.path, { ...params, asset_id: assetId }, {});
+}
+
+/** نشانی دانلود بستهٔ انتشار دستی (ZIP) نسخهٔ جاری یک محتوا. */
+export function contentPackageUrl(params: { workspace_id: string; brand_id: string }, contentId: string): string {
+  return buildUrl(contentPackageRoute.path, { ...params, content_id: contentId }, {});
+}
+
+/** بارگذاری خام یک فایل؛ نوع را سرور از محتوای فایل تشخیص می‌دهد. */
+export async function uploadAsset(
+  params: { workspace_id: string; brand_id: string },
+  query: UploadAssetQuery,
+  file: Blob,
+): Promise<AssetView> {
+  const headers: Record<string, string> = { accept: 'application/json', 'content-type': 'application/octet-stream' };
+  if (csrfToken) headers['x-csrf-token'] = csrfToken;
+  let response: Response;
+  try {
+    response = await fetch(buildUrl(assetUploadRoute.path, params, query), {
+      method: 'POST',
+      headers,
+      credentials: 'same-origin',
+      cache: 'no-store',
+      body: file,
+    });
+  } catch {
+    throw new ApiFailure({ code: 'NETWORK', status: 0, message: 'ارتباط با سرور استودیو برقرار نیست.' });
+  }
+  const payload = (await response.json().catch(() => null)) as AssetView | ApiError | null;
+  if (!response.ok) {
+    const error = (payload as ApiError | null)?.error;
+    throw new ApiFailure({
+      code: error?.code ?? 'INTERNAL',
+      status: response.status,
+      message: error?.message_fa ?? (response.status === 413 ? 'حجم فایل بیش از سقف مجاز است.' : 'بارگذاری انجام نشد.'),
+      traceId: error?.trace_id ?? null,
+      actionRequired: error?.action_required ?? null,
+      details: error?.details ?? [],
+    });
+  }
+  return payload as AssetView;
 }
 
 /** کلید یکتایی هر کلیک؛ دوبار کلیک روی همان پنجرهٔ تأیید همان کلید را می‌فرستد و run دوم نمی‌سازد. */

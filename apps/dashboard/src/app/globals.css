@@ -316,3 +316,9 @@ dialog.dialog::backdrop { background: rgb(15 20 24 / 55%); }
 .auth { min-block-size: 100dvh; display: grid; place-items: center; padding: 24px; }
 .auth__card { inline-size: min(440px, 100%); }
 .toast { position: fixed; inset-block-end: 20px; inset-inline-start: 20px; z-index: 30; max-inline-size: min(420px, calc(100vw - 40px)); }
+
+/* دارایی‌ها (M3.5) */
+.asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.asset { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.asset__media { inline-size: 100%; block-size: auto; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); display: block; }
+.asset__file { padding: 18px 10px; border-radius: 8px; border: 1px dashed var(--border); text-align: center; font-size: 0.85rem; overflow-wrap: anywhere; }
