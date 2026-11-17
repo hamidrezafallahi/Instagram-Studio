@@ -17,6 +17,7 @@
     "@studio/contracts": "workspace:*",
     "@studio/data": "workspace:*",
     "@studio/domain": "workspace:*",
+    "@studio/media": "workspace:*",
     "@studio/policy": "workspace:*",
     "@studio/security": "workspace:*",
     "@studio/workflows": "workspace:*"

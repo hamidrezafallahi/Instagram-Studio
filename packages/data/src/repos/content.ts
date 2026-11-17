@@ -110,6 +110,7 @@ export async function insertRevision(
     content_id: string;
     revision: number;
     text: string;
+    asset_ids?: readonly string[];
     source_refs: SourceRef[];
     claims: Claim[];
     qa_result: QaResult;
@@ -120,23 +121,23 @@ export async function insertRevision(
   },
 ): Promise<void> {
   await tx.query(
-    `INSERT INTO content_revisions (workspace_id, brand_id, content_id, revision, text, source_refs, claims,
+    `INSERT INTO content_revisions (workspace_id, brand_id, content_id, revision, text, asset_ids, source_refs, claims,
                                     qa_result, hash, generator, note, created_by)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
     [
       input.workspace_id, input.brand_id, input.content_id, input.revision, input.text,
-      JSON.stringify(input.source_refs), JSON.stringify(input.claims), JSON.stringify(input.qa_result),
-      input.hash, JSON.stringify(input.generator), input.note, input.created_by,
+      JSON.stringify(input.asset_ids ?? []), JSON.stringify(input.source_refs), JSON.stringify(input.claims),
+      JSON.stringify(input.qa_result), input.hash, JSON.stringify(input.generator), input.note, input.created_by,
     ],
   );
 }
 
 export async function listRevisions(tx: Tx, contentId: string): Promise<ContentRevisionView[]> {
   const result = await tx.query<{
-    revision: number; text: string; hash: string; source_refs: SourceRef[]; claims: Claim[];
+    revision: number; text: string; hash: string; asset_ids: string[]; source_refs: SourceRef[]; claims: Claim[];
     qa_result: QaResult; generator: GeneratorInfo; note: string | null; created_by: string; created_at: Date;
   }>(
-    `SELECT revision, text, hash, source_refs, claims, qa_result, generator, note, created_by, created_at
+    `SELECT revision, text, hash, asset_ids, source_refs, claims, qa_result, generator, note, created_by, created_at
        FROM content_revisions WHERE content_id = $1 ORDER BY revision DESC`,
     [contentId],
   );

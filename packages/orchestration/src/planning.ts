@@ -9,7 +9,7 @@ import {
   type ScheduleEntry,
   type UpdateScheduleEntryBody,
 } from '@studio/contracts';
-import { contentRepo, planRepo, type Tx } from '@studio/data';
+import { assetRepo, contentRepo, planRepo, type Tx } from '@studio/data';
 import {
   CONTENT_EDITABLE_STATES,
   assertTransition,
@@ -148,8 +148,20 @@ export function createPlanningService(deps: StudioDeps, brands: BrandService, ho
         if (item.current_revision !== body.expected_revision) throw new StudioError('STALE_REVISION');
         const text = normalizePersian(body.text).trim();
         const previous = current.revisions[0];
-        if (previous && previous.text === text) {
-          throw new StudioError('CONFLICT', { message_fa: 'متن تغییری نکرده است.' });
+        const assetIds = body.asset_ids ?? previous?.asset_ids ?? [];
+        if (new Set(assetIds).size !== assetIds.length) {
+          throw new StudioError('VALIDATION_FAILED', { message_fa: 'یک دارایی دو بار در فهرست آمده است.' });
+        }
+        // RLS همین برند فعال است؛ دارایی برند دیگر یا ناموجود این‌جا دیده نمی‌شود (A07).
+        const found = await assetRepo.existingIds(tx, call.brand_id, assetIds);
+        if (found.size !== assetIds.length) {
+          throw new StudioError('CROSS_BRAND_REFERENCE', {
+            message_fa: 'دست‌کم یکی از دارایی‌ها در این برند پیدا نشد.',
+          });
+        }
+        const sameAssets = JSON.stringify(previous?.asset_ids ?? []) === JSON.stringify(assetIds);
+        if (previous && previous.text === text && sameAssets) {
+          throw new StudioError('CONFLICT', { message_fa: 'متن و دارایی‌ها تغییری نکرده‌اند.' });
         }
 
         const brand = await brands.load(tx, call.brand_id);
@@ -176,10 +188,11 @@ export function createPlanningService(deps: StudioDeps, brands: BrandService, ho
           content_id: contentId,
           revision,
           text,
+          asset_ids: assetIds,
           source_refs: sourceRefs,
           claims: qa.output.claims,
           qa_result: qa.output.qa_result,
-          hash: hashContentRevision({ text, asset_ids: [], source_refs: sourceRefs, claims: qa.output.claims }),
+          hash: hashContentRevision({ text, asset_ids: assetIds, source_refs: sourceRefs, claims: qa.output.claims }),
           generator: { kind: 'human', provider: 'dashboard', role: null, prompt_version: null },
           note: body.note?.trim() || null,
           created_by: call.actor.id,
@@ -196,7 +209,10 @@ export function createPlanningService(deps: StudioDeps, brands: BrandService, ho
           target_type: 'content',
           target_id: contentId,
           outcome: 'succeeded',
-          metadata: { revision, state: finalState, qa_status: qa.output.qa_result.status, invalidated_intents: invalidated },
+          metadata: {
+            revision, state: finalState, qa_status: qa.output.qa_result.status, asset_count: assetIds.length,
+            invalidated_intents: invalidated,
+          },
         });
         return contentDetail(tx, contentId);
       });

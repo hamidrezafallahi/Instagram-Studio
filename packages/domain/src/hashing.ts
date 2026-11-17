@@ -31,7 +31,8 @@ export function hashContentRevision(input: {
 }): string {
   return hashObject({
     text: input.text,
-    asset_ids: [...input.asset_ids].sort(),
+    // ترتیب دارایی‌ها (مثلاً اسلایدهای کاروسل) بخشی از محتواست؛ جابه‌جایی هم تأیید را باطل می‌کند.
+    asset_ids: [...input.asset_ids],
     source_refs: input.source_refs,
     claims: input.claims,
   });

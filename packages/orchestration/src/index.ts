@@ -3,8 +3,11 @@ import { loadCapabilityRegister, loadIndustryPacks, summarizePack, type RuntimeC
 import { ConnectorRegistry } from '@studio/connectors';
 import { createFakeConnector, FakeProviderState } from '@studio/connector-fake';
 import { StudioError, type IndustryPack, type IndustryPackSummary } from '@studio/contracts';
+import { join } from 'node:path';
 import { Database } from '@studio/data';
+import { AssetStore } from '@studio/media';
 import { createLogger, createVault, loadMasterKey, processScrubber, type Logger } from '@studio/security';
+import { createAssetService } from './assets.ts';
 import { createAuthService } from './auth.ts';
 import { createBrandImportService } from './brand-import.ts';
 import { createBrandService } from './brands.ts';
@@ -17,6 +20,7 @@ import { createRunService } from './runs.ts';
 import { createSampleDataService } from './sample-data.ts';
 
 export type { Access, AuthenticatedSession, IssuedSession } from './auth.ts';
+export type { AssetFile } from './assets.ts';
 export {
   BRANDS_DIR,
   buildSeedProfile,
@@ -41,10 +45,12 @@ export function createStudio(deps: StudioDeps, options: { faults?: ExecutionFaul
   const reports = createReportService(deps, brands);
   const sampleData = createSampleDataService(deps, brands, connections);
   const brandImport = createBrandImportService(deps, brands);
+  const assets = createAssetService(deps, brands);
 
   return {
     deps,
     auth,
+    assets,
     brands,
     brandImport,
     connections,
@@ -85,6 +91,8 @@ export interface StudioOptions {
   applicationName?: string;
   /** فقط آزمون: درگاه مدل تزریقی (مثلاً provider ساختگی بدون شبکه). */
   models?: ModelGateway;
+  /** ریشهٔ ذخیرهٔ دارایی؛ پیش‌فرض STUDIO_HOME/assets. */
+  assetRoot?: string;
 }
 
 /**
@@ -115,6 +123,7 @@ export function createStudioFromConfig(options: StudioOptions): Studio {
     register: loadCapabilityRegister(),
     connectors,
     models: options.models ?? createModelGateway(config),
+    assets: new AssetStore(options.assetRoot ?? join(config.home, 'assets')),
     logger: options.logger ?? createLogger({ service: 'studio', level: config.logLevel }),
     settings: { profile: config.profile, sampleData: config.sampleData, sessionTtlHours: 24 * 7 },
     now: options.now ?? (() => new Date()),

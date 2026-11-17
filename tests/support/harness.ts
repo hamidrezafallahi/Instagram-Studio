@@ -1,10 +1,15 @@
 import assert from 'node:assert/strict';
 import { randomBytes, randomUUID } from 'node:crypto';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { buildApp } from '@studio/api';
 import type { RuntimeConfig } from '@studio/config';
 import { REPO_ROOT } from '@studio/config';
 import { FakeProviderState } from '@studio/connector-fake';
 import {
+  assetFileRoute,
+  assetUploadRoute,
   reportExportRoute,
   routes,
   type ApiError,
@@ -68,7 +73,7 @@ export class TestClient {
     method: string,
     path: string,
     input: { params?: object; query?: object; body?: unknown; headers?: Record<string, string> } = {},
-  ): Promise<{ status: number; raw: string; headers: Record<string, string | string[] | number | undefined> }> {
+  ): Promise<{ status: number; raw: string; rawBody: Buffer; headers: Record<string, string | string[] | number | undefined> }> {
     let url = path.replace(/\{(\w+)\}/g, (_, key: string) => {
       const value = (input.params as Record<string, string> | undefined)?.[key];
       assert.ok(value !== undefined, `پارامتر مسیر ${key} داده نشده است`);
@@ -98,7 +103,7 @@ export class TestClient {
         this.cookie = pair === 'studio_session=' ? null : pair;
       }
     }
-    return { status: response.statusCode, raw: response.payload, headers: response.headers };
+    return { status: response.statusCode, raw: response.payload, rawBody: response.rawPayload, headers: response.headers };
   }
 
   async call<K extends RouteId>(id: K, input: CallInput<K> = {}): Promise<CallResult<K>> {
@@ -137,6 +142,28 @@ export class TestClient {
     return error;
   }
 
+  /** upload خام یک فایل مثل داشبورد: بدنهٔ application/octet-stream و فراداده در query. */
+  async uploadAsset(
+    brandId: string,
+    query: Record<string, string | undefined>,
+    data: Buffer,
+    headers: Record<string, string> = {},
+  ): Promise<{ status: number; raw: string; json: any; headers: Record<string, string | string[] | number | undefined> }> {
+    const response = await this.request(assetUploadRoute.method, assetUploadRoute.path, {
+      params: this.brand(brandId),
+      query,
+      body: data,
+      headers: { 'content-type': 'application/octet-stream', ...headers },
+    });
+    return { ...response, json: response.raw ? JSON.parse(response.raw) : null };
+  }
+
+  async assetFile(brandId: string, assetId: string) {
+    return this.request(assetFileRoute.method, assetFileRoute.path, {
+      params: { ...this.brand(brandId), asset_id: assetId },
+    });
+  }
+
   async exportReport(
     brandId: string,
     query: { week_of?: string; format?: 'csv' | 'json' },
@@ -150,6 +177,8 @@ export class TestClient {
 
 export interface Harness {
   app: FastifyInstance;
+  /** پوشهٔ موقت دارایی‌های همین نمونه. */
+  assetRoot: string;
   studio: Studio;
   database: TestDatabase;
   fakeState: FakeProviderState;
@@ -190,7 +219,9 @@ export async function createHarness(options: { sampleData?: boolean; now?: strin
     textModel: 'template',
     openrouterModels: [],
   };
+  const assetRoot = await mkdtemp(join(tmpdir(), 'studio-test-assets-'));
   const studio = createStudioFromConfig({
+    assetRoot,
     config,
     databaseUrl: database.appUrl,
     logger,
@@ -209,6 +240,7 @@ export async function createHarness(options: { sampleData?: boolean; now?: strin
   await app.ready();
   return {
     app,
+    assetRoot,
     studio,
     database,
     fakeState,
@@ -230,6 +262,7 @@ export async function createHarness(options: { sampleData?: boolean; now?: strin
       await app.close();
       await studio.close();
       await database.dispose();
+      await rm(assetRoot, { recursive: true, force: true });
     },
   };
 }

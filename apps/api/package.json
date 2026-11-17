@@ -15,6 +15,7 @@
     "@studio/contracts": "workspace:*",
     "@studio/data": "workspace:*",
     "@studio/domain": "workspace:*",
+    "@studio/media": "workspace:*",
     "@studio/orchestration": "workspace:*",
     "@studio/security": "workspace:*",
     "fastify": "catalog:",

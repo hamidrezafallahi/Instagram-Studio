@@ -127,6 +127,9 @@ importers:
       '@studio/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@studio/media':
+        specifier: workspace:*
+        version: link:../../packages/media
       '@studio/orchestration':
         specifier: workspace:*
         version: link:../../packages/orchestration
@@ -258,6 +261,12 @@ importers:
         specifier: workspace:*
         version: link:../../config
 
+  packages/media:
+    dependencies:
+      '@studio/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+
   packages/orchestration:
     dependencies:
       '@studio/agents':
@@ -287,6 +296,9 @@ importers:
       '@studio/domain':
         specifier: workspace:*
         version: link:../domain
+      '@studio/media':
+        specifier: workspace:*
+        version: link:../media
       '@studio/policy':
         specifier: workspace:*
         version: link:../policy
@@ -341,6 +353,9 @@ importers:
       '@studio/domain':
         specifier: workspace:*
         version: link:../packages/domain
+      '@studio/media':
+        specifier: workspace:*
+        version: link:../packages/media
       '@studio/orchestration':
         specifier: workspace:*
         version: link:../packages/orchestration

@@ -8,6 +8,7 @@ import {
   type Role,
 } from '@studio/contracts';
 import { recordRepo, type AuditInput, type Database, type Tx } from '@studio/data';
+import type { AssetStore } from '@studio/media';
 import type { Logger, Vault } from '@studio/security';
 
 /** وابستگی‌های مشترک همهٔ سرویس‌ها؛ در composition root هر برنامه (API، worker، MCP) ساخته می‌شود. */
@@ -18,6 +19,8 @@ export interface StudioDeps {
   register: CapabilityRegister;
   connectors: ConnectorRegistry;
   models: ModelGateway;
+  /** ذخیرهٔ فایل دارایی‌ها (STUDIO_HOME/assets). */
+  assets: AssetStore;
   logger: Logger;
   settings: {
     profile: 'local' | 'server';

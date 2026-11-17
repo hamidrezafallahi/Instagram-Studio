@@ -1,0 +1,14 @@
+{
+  "name": "@studio/media",
+  "version": "0.1.0",
+  "private": true,
+  "description": "خط تولید رسانه: شناسایی و سنجش فایل، ذخیرهٔ محتوامحور دارایی‌ها",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./fixtures": "./src/fixtures.ts"
+  },
+  "dependencies": {
+    "@studio/contracts": "workspace:*"
+  }
+}

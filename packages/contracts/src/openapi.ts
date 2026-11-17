@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { API_VERSION, reportExportRoute, routes, type RouteDef } from './api.ts';
+import {
+  API_VERSION,
+  assetFileRoute,
+  assetUploadRoute,
+  reportExportRoute,
+  routes,
+  type RouteDef,
+} from './api.ts';
 import { ApiError, ERROR_HTTP, ERROR_MESSAGE_FA, type ErrorCode } from './errors.ts';
 import { SCHEMA_VERSION } from './primitives.ts';
 
@@ -147,6 +154,49 @@ export function buildOpenApiDocument(): Json {
             'application/json': { schema: { $ref: '#/components/schemas/WeeklyReport' } },
           },
         },
+        ...errorResponses(['UNAUTHENTICATED', 'FORBIDDEN', 'NOT_FOUND', 'VALIDATION_FAILED']),
+      },
+    },
+  };
+
+  // upload دارایی (بدنهٔ فایل خام).
+  (paths[assetUploadRoute.path] ??= {})['post'] = {
+    operationId: assetUploadRoute.id,
+    tags: [assetUploadRoute.tag],
+    summary: assetUploadRoute.summary_fa,
+    'x-scope': assetUploadRoute.scope,
+    'x-min-role': assetUploadRoute.min_role,
+    security: [{ sessionCookie: [] }],
+    parameters: [
+      ...paramList(assetUploadRoute as unknown as RouteDef, components),
+      { name: 'x-csrf-token', in: 'header', required: true, schema: { type: 'string' }, description: 'نشانهٔ CSRF همان نشست' },
+    ],
+    requestBody: {
+      required: true,
+      description: 'خود فایل؛ نوع از محتوا تشخیص داده می‌شود (PNG، JPEG، WebP، MP4، MP3، M4A، TTF، OTF، WOFF2)',
+      content: { 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } },
+    },
+    responses: {
+      '201': {
+        description: 'ثبت شد (یا همان دارایی قبلی با checksum یکسان)',
+        content: { 'application/json': { schema: toSchema(assetUploadRoute.response, 'output', components) } },
+      },
+      ...errorResponses(assetUploadRoute.errors),
+    },
+  };
+
+  // دانلود فایل دارایی.
+  paths[assetFileRoute.path] = {
+    get: {
+      operationId: assetFileRoute.id,
+      tags: [assetFileRoute.tag],
+      summary: assetFileRoute.summary_fa,
+      'x-scope': assetFileRoute.scope,
+      'x-min-role': assetFileRoute.min_role,
+      security: [{ sessionCookie: [] }],
+      parameters: paramList({ ...assetFileRoute, response: z.string(), errors: [] } as unknown as RouteDef, components),
+      responses: {
+        '200': { description: 'فایل دارایی با نوع ثبت‌شده', content: { '*/*': { schema: { type: 'string', format: 'binary' } } } },
         ...errorResponses(['UNAUTHENTICATED', 'FORBIDDEN', 'NOT_FOUND', 'VALIDATION_FAILED']),
       },
     },

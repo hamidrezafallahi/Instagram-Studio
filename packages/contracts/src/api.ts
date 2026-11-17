@@ -290,6 +290,8 @@ export const ContentRevisionView = z
     claims: z.array(Claim),
     qa_result: QaResult,
     generator: GeneratorInfo,
+    /** دارایی‌های همین نسخه به ترتیب نمایش (مثلاً اسلایدهای کاروسل). */
+    asset_ids: z.array(Uuid),
     note: z.string().nullable(),
     created_by: z.string(),
     created_at: UtcTimestamp,
@@ -331,10 +333,63 @@ export const CreateContentRevisionBody = z
   .strictObject({
     expected_revision: z.int().nonnegative(),
     text: z.string().min(1).max(20000),
+    /** دارایی‌های نسخهٔ تازه به ترتیب؛ نبودن یعنی همان دارایی‌های نسخهٔ قبلی. همه باید از همین برند باشند. */
+    asset_ids: z.array(Uuid).max(20).optional(),
     note: z.string().max(500).optional(),
   })
   .meta({ id: 'CreateContentRevisionBody' });
 export type CreateContentRevisionBody = z.infer<typeof CreateContentRevisionBody>;
+
+/* ─────────────────────────────────── دارایی ─────────────────────────────────── */
+
+export const AssetKind = z.enum(['image', 'video', 'audio', 'font', 'logo', 'subtitle']);
+export type AssetKind = z.infer<typeof AssetKind>;
+export const AssetProvenance = z.enum(['owner_upload', 'rendered', 'canva_import', 'sample']);
+export type AssetProvenance = z.infer<typeof AssetProvenance>;
+/** رضایت اشخاص حاضر در تصویر/صدا؛ missing یعنی فایل تا رفع آن قابل انتشار نیست. */
+export const AssetConsent = z.enum(['not_applicable', 'obtained', 'missing']);
+export type AssetConsent = z.infer<typeof AssetConsent>;
+
+export const AssetView = z
+  .strictObject({
+    id: Uuid,
+    brand_id: Uuid,
+    kind: AssetKind,
+    provenance: AssetProvenance,
+    mime: z.string(),
+    byte_size: z.int().positive(),
+    checksum: Sha256,
+    width: z.int().positive().nullable(),
+    height: z.int().positive().nullable(),
+    duration_ms: z.int().positive().nullable(),
+    language: z.string().nullable(),
+    filename: z.string(),
+    title_fa: z.string(),
+    license: z.string(),
+    consent: AssetConsent,
+    parent_asset_id: Uuid.nullable(),
+    version: z.int().positive(),
+    is_sample: z.boolean(),
+    created_by: z.string(),
+    created_at: UtcTimestamp,
+  })
+  .meta({ id: 'AssetView', description: 'دارایی immutable؛ ویرایش یعنی نسخهٔ تازه با parent_asset_id' });
+export type AssetView = z.infer<typeof AssetView>;
+
+/** فرادادهٔ upload در query؛ بدنهٔ درخواست خود فایل (application/octet-stream) است. */
+export const UploadAssetQuery = z
+  .strictObject({
+    kind: AssetKind.exclude(['subtitle']),
+    filename: z.string().trim().min(1).max(200),
+    title_fa: z.string().trim().min(1).max(200).optional(),
+    license: z.string().trim().min(1).max(300),
+    consent: AssetConsent.default('not_applicable'),
+    language: z.string().trim().min(2).max(10).optional(),
+    /** نسخهٔ تازهٔ یک دارایی موجود. */
+    parent_asset_id: Uuid.optional(),
+  })
+  .meta({ id: 'UploadAssetQuery' });
+export type UploadAssetQuery = z.infer<typeof UploadAssetQuery>;
 
 /* ─────────────────────────────────── اجرا ─────────────────────────────────── */
 
@@ -993,6 +1048,31 @@ export const routes = {
     response: ContentItemDetail,
     errors: [...BRAND_ERRORS],
   }),
+  listAssets: route({
+    id: 'listAssets',
+    method: 'GET',
+    path: `${BRAND}/assets`,
+    tag: 'assets',
+    summary_fa: 'فهرست دارایی‌های برند (جدیدترین اول)',
+    scope: 'brand',
+    min_role: 'viewer',
+    params: BrandParams,
+    query: z.strictObject({ kind: AssetKind.optional() }),
+    response: list(AssetView),
+    errors: [...BRAND_ERRORS],
+  }),
+  getAsset: route({
+    id: 'getAsset',
+    method: 'GET',
+    path: `${BRAND}/assets/{asset_id}`,
+    tag: 'assets',
+    summary_fa: 'یک دارایی با فراداده',
+    scope: 'brand',
+    min_role: 'viewer',
+    params: BrandParams.extend({ asset_id: Uuid }),
+    response: AssetView,
+    errors: [...BRAND_ERRORS],
+  }),
   createContentRevision: route({
     id: 'createContentRevision',
     method: 'POST',
@@ -1005,7 +1085,7 @@ export const routes = {
     body: CreateContentRevisionBody,
     response: ContentItemDetail,
     success_status: 201,
-    errors: [...WRITE_ERRORS, 'STALE_REVISION', 'INVALID_TRANSITION'],
+    errors: [...WRITE_ERRORS, 'STALE_REVISION', 'INVALID_TRANSITION', 'CROSS_BRAND_REFERENCE'],
   }),
   createRun: route({
     id: 'createRun',
@@ -1286,4 +1366,35 @@ export const reportExportRoute = {
   min_role: 'viewer',
   params: BrandParams,
   query: z.strictObject({ week_of: IsoDate.optional(), format: ReportExportFormat.default('csv') }),
+} as const;
+
+/**
+ * upload دارایی. بدنه فایل خام (application/octet-stream) است، پس بیرون از جدول routes تعریف می‌شود؛
+ * همان احراز هویت، CSRF، عضویت و نقش را دارد. نوع فایل از محتوا تشخیص داده می‌شود، نه از نام یا سرآیند.
+ */
+export const assetUploadRoute = {
+  id: 'uploadAsset',
+  method: 'POST',
+  path: `${BRAND}/assets`,
+  tag: 'assets',
+  summary_fa: 'بارگذاری دارایی (تصویر، ویدئو، صدا یا فونت)',
+  scope: 'brand',
+  min_role: 'editor',
+  params: BrandParams,
+  query: UploadAssetQuery,
+  response: AssetView,
+  success_status: 201,
+  errors: [...WRITE_ERRORS, 'INVALID_MEDIA', 'CROSS_BRAND_REFERENCE'],
+} as const;
+
+/** دانلود فایل یک دارایی؛ فقط با نشست مالک یا عضو برند و هرگز با نشانی عمومی. */
+export const assetFileRoute = {
+  id: 'getAssetFile',
+  method: 'GET',
+  path: `${BRAND}/assets/{asset_id}/file`,
+  tag: 'assets',
+  summary_fa: 'دریافت فایل دارایی',
+  scope: 'brand',
+  min_role: 'viewer',
+  params: BrandParams.extend({ asset_id: Uuid }),
 } as const;

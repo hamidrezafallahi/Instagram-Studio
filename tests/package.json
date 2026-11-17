@@ -19,6 +19,7 @@
     "@studio/agents": "workspace:*",
     "@studio/workflows": "workspace:*",
     "@studio/analytics": "workspace:*",
+    "@studio/media": "workspace:*",
     "pg": "catalog:",
     "fastify": "catalog:"
   },

@@ -3,6 +3,8 @@ import cookie from '@fastify/cookie';
 import {
   ERROR_HTTP,
   StudioError,
+  assetFileRoute,
+  assetUploadRoute,
   isStudioError,
   reportExportRoute,
   routes,
@@ -32,6 +34,8 @@ import Fastify, {
 import type { z } from 'zod';
 
 export const SESSION_COOKIE = 'studio_session';
+/** سقف بدنهٔ upload؛ سقف دقیق هر نوع فایل در سرویس دارایی بررسی می‌شود. */
+export const MAX_UPLOAD_BYTES = 200 * 1024 * 1024;
 
 export interface ApiOptions {
   studio: Studio;
@@ -94,6 +98,12 @@ export async function buildApp(options: ApiOptions): Promise<FastifyInstance> {
     logController: new LogController({ disableRequestLogging: true, requestIdLogLabel: 'trace_id' }),
   });
   await app.register(cookie);
+  // فقط مسیر upload دارایی بدنهٔ خام می‌پذیرد؛ مسیرهای JSON بدنهٔ باینری را در اعتبارسنجی رد می‌کنند.
+  app.addContentTypeParser(
+    'application/octet-stream',
+    { parseAs: 'buffer', bodyLimit: MAX_UPLOAD_BYTES },
+    (_request, body, done) => done(null, body),
+  );
 
   app.addHook('onResponse', async (request, reply) => {
     if (request.url === '/healthz' || request.url === '/readyz') return;
@@ -302,6 +312,8 @@ export async function buildApp(options: ApiOptions): Promise<FastifyInstance> {
     updateScheduleEntry: (ctx) => studio.planning.updateEntry(ctx.brand(), ctx.params.entry_id, ctx.body),
     listContent: async (ctx) => ({ items: await studio.planning.listContent(ctx.brand(), ctx.query.state) }),
     getContent: (ctx) => studio.planning.getContent(ctx.brand(), ctx.params.content_id),
+    listAssets: async (ctx) => ({ items: await studio.assets.list(ctx.brand(), ctx.query.kind) }),
+    getAsset: (ctx) => studio.assets.get(ctx.brand(), ctx.params.asset_id),
     createContentRevision: (ctx) =>
       studio.planning.createRevision(ctx.brand(), ctx.params.content_id, ctx.body),
     createRun: (ctx) => studio.runs.create(ctx.brand(), ctx.body),
@@ -378,6 +390,46 @@ export async function buildApp(options: ApiOptions): Promise<FastifyInstance> {
         .header('content-type', file.content_type)
         .header('content-disposition', `attachment; filename="${file.filename}"`)
         .send(file.body);
+    },
+  });
+
+  app.route({
+    method: assetUploadRoute.method,
+    url: fastifyPath(assetUploadRoute.path),
+    bodyLimit: MAX_UPLOAD_BYTES,
+    handler: async (request, reply) => {
+      const secured = await secure(assetUploadRoute, request);
+      if (!Buffer.isBuffer(request.body)) {
+        throw new StudioError('INVALID_MEDIA', {
+          message_fa: 'فایل باید به‌صورت application/octet-stream ارسال شود.',
+        });
+      }
+      const asset = await studio.assets.upload(
+        calls(secured.access, secured.session, request.id).brand(),
+        secured.query as z.infer<typeof assetUploadRoute.query>,
+        request.body,
+      );
+      return reply.code(assetUploadRoute.success_status).send(assetUploadRoute.response.parse(asset));
+    },
+  });
+
+  app.route({
+    method: assetFileRoute.method,
+    url: fastifyPath(assetFileRoute.path),
+    handler: async (request, reply) => {
+      const secured = await secure(assetFileRoute, request);
+      const file = await studio.assets.file(
+        calls(secured.access, secured.session, request.id).brand(),
+        secured.params['asset_id'] as string,
+      );
+      // نام فایل فارسی با RFC 5987؛ نسخهٔ ASCII جایگزین برای مرورگرهای قدیمی.
+      const ascii = file.filename.replace(/[^ -~]/g, '_').replace(/"/g, '');
+      return reply
+        .header('content-type', file.mime)
+        .header('content-disposition', `inline; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(file.filename)}`)
+        .header('content-security-policy', "default-src 'none'; sandbox")
+        .header('cross-origin-resource-policy', 'same-origin')
+        .send(file.data);
     },
   });
 
