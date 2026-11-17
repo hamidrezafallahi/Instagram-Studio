@@ -93,6 +93,27 @@
       "price_range": "به دامنهٔ کار بستگی دارد و فقط خود مالک برآورد می‌دهد؛ در محتوای عمومی قیمت نمی‌آید.",
       "faq_ownership": "دامنه، هاست، کد و دسترسی مدیریت به نام و در اختیار خود مشتری است. (تأییدنشده)"
     },
-    "retention": { "message_text_days": 90, "raw_payload_days": 30, "audit_days": 365 }
+    "retention": { "message_text_days": 90, "raw_payload_days": 30, "audit_days": 365 },
+    "visual": {
+      "colors": {
+        "ink": "#111315",
+        "paper": "#F4F1EA",
+        "signal": "#F2542D",
+        "stone": "#5E5A54",
+        "mist": "#A8A39A",
+        "hairline": "#D8D2C6"
+      },
+      "handle": "@hamidrezafalahi.ir",
+      "swipe_cue_fa": "ورق بزنید ←",
+      "pillar_kickers": {
+        "customer_problem": "// GUIDE",
+        "before_after": "// BEFORE · AFTER",
+        "process": "// PROCESS",
+        "common_mistakes": "// GUIDE",
+        "case_study": "// CASE STUDY",
+        "service_intro": "// SERVICE"
+      },
+      "dark_pillars": ["case_study", "process"]
+    }
   }
 }

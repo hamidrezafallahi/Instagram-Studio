@@ -367,6 +367,83 @@
             "audit_days"
           ],
           "additionalProperties": false
+        },
+        "visual": {
+          "type": "object",
+          "properties": {
+            "colors": {
+              "type": "object",
+              "properties": {
+                "ink": {
+                  "type": "string",
+                  "pattern": "^#[0-9A-Fa-f]{6}$"
+                },
+                "paper": {
+                  "type": "string",
+                  "pattern": "^#[0-9A-Fa-f]{6}$"
+                },
+                "signal": {
+                  "type": "string",
+                  "pattern": "^#[0-9A-Fa-f]{6}$"
+                },
+                "stone": {
+                  "type": "string",
+                  "pattern": "^#[0-9A-Fa-f]{6}$"
+                },
+                "mist": {
+                  "type": "string",
+                  "pattern": "^#[0-9A-Fa-f]{6}$"
+                },
+                "hairline": {
+                  "type": "string",
+                  "pattern": "^#[0-9A-Fa-f]{6}$"
+                }
+              },
+              "required": [
+                "ink",
+                "paper",
+                "signal",
+                "stone",
+                "mist",
+                "hairline"
+              ],
+              "additionalProperties": false
+            },
+            "handle": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60
+            },
+            "swipe_cue_fa": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "pillar_kickers": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              },
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              }
+            },
+            "dark_pillars": {
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+              }
+            }
+          },
+          "required": [
+            "colors"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [

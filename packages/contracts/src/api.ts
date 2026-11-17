@@ -393,7 +393,7 @@ export type UploadAssetQuery = z.infer<typeof UploadAssetQuery>;
 
 /* ─────────────────────────────────── اجرا ─────────────────────────────────── */
 
-export const RunIntent = z.enum(['build_weekly_plan', 'generate_drafts', 'collect_metrics']);
+export const RunIntent = z.enum(['build_weekly_plan', 'generate_drafts', 'render_visuals', 'collect_metrics']);
 export type RunIntent = z.infer<typeof RunIntent>;
 
 /**
@@ -409,6 +409,8 @@ export const CreateRunBody = z
         /** هر روزی از هفتهٔ هدف؛ سرور آن را به شروع هفتهٔ برند گرد می‌کند. */
         week_of: IsoDate.optional(),
         schedule_entry_ids: z.array(Uuid).max(50).optional(),
+        /** render_visuals: محتواهای انتخابی؛ بدون آن همهٔ محتوای تصویری هفته که هنوز تصویر ندارند. */
+        content_ids: z.array(Uuid).max(50).optional(),
       })
       .default({}),
   })

@@ -67,6 +67,13 @@ export interface WorkflowTools {
   textLimits(channel: string): Promise<{ max_text_chars?: number } | undefined>;
   /** محتوا، بریف و نسخهٔ اول را در یک تراکنش می‌سازد؛ اگر آیتم قبلاً محتوا دارد null برمی‌گرداند. */
   saveDraft(draft: DraftToSave): Promise<{ content_id: string } | null>;
+  /** محتوای تصویری هفته (یا محتواهای انتخابی) که می‌توان برایشان تصویر ساخت؛ موارد ردشده با دلیل. */
+  listRenderable(weekStart: string, contentIds?: string[]): Promise<{
+    candidates: RenderCandidate[];
+    skipped: { ref: string; reason_fa: string }[];
+  }>;
+  /** رندر، ذخیرهٔ دارایی‌ها و نسخهٔ تازهٔ محتوا با QA بصری. */
+  renderContent(contentId: string): Promise<RenderOutcome>;
   listMetricsSources(): Promise<MetricsSource[]>;
   fetchMetrics(source: MetricsSource, period: { start: string; end: string }): Promise<MetricsBatch>;
   saveMetrics(source: MetricsSource, batch: MetricsBatch): Promise<number>;
@@ -75,6 +82,22 @@ export interface WorkflowTools {
 export interface RunParams {
   week_of?: string | undefined;
   schedule_entry_ids?: string[] | undefined;
+  content_ids?: string[] | undefined;
+}
+
+/** محتوایی که می‌توان برایش تصویر ساخت. */
+export interface RenderCandidate {
+  content_id: string;
+  title_fa: string;
+  format: string;
+}
+
+export interface RenderOutcome {
+  content_id: string;
+  slides: number;
+  qa_status: QaResult['status'];
+  /** null یعنی نسخهٔ تازه ساخته شد؛ وگرنه دلیل کنار گذاشتن (مثلاً «تصویرها تغییری نکردند»). */
+  skipped_reason_fa: string | null;
 }
 
 export interface RunOutcome {
@@ -93,6 +116,7 @@ export interface RunContext {
   plan?: Plan;
   entries?: ScheduleEntry[];
   sources?: MetricsSource[];
+  renderables?: RenderCandidate[];
   outcome: RunOutcome;
   /** شکست‌های واقعی (نه رد بی‌خطر مثل «قبلاً پیش‌نویس دارد»)؛ وضعیت نهایی run از این‌ها محاسبه می‌شود. */
   failures: { code: ErrorCode; message_fa: string }[];

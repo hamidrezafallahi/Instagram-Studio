@@ -62,6 +62,9 @@ importers:
       '@studio/data':
         specifier: workspace:*
         version: link:packages/data
+      '@studio/media':
+        specifier: workspace:*
+        version: link:packages/media
       '@studio/orchestration':
         specifier: workspace:*
         version: link:packages/orchestration

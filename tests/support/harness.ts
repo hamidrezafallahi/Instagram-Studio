@@ -194,7 +194,9 @@ export interface Harness {
   close(): Promise<void>;
 }
 
-export async function createHarness(options: { sampleData?: boolean; now?: string } = {}): Promise<Harness> {
+export async function createHarness(
+  options: { sampleData?: boolean; now?: string; browserPath?: string } = {},
+): Promise<Harness> {
   const database = await createTestDatabase();
   const logs: string[] = [];
   const scrubber = new SecretScrubber();
@@ -218,6 +220,7 @@ export async function createHarness(options: { sampleData?: boolean; now?: strin
     migrationDatabaseUrl: database.ownerUrl,
     textModel: 'template',
     openrouterModels: [],
+    browserPath: options.browserPath,
   };
   const assetRoot = await mkdtemp(join(tmpdir(), 'studio-test-assets-'));
   const studio = createStudioFromConfig({

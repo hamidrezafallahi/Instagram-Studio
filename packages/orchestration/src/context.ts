@@ -21,6 +21,8 @@ export interface StudioDeps {
   models: ModelGateway;
   /** ذخیرهٔ فایل دارایی‌ها (STUDIO_HOME/assets). */
   assets: AssetStore;
+  /** رندر تصویر: مسیر مرورگر (null یعنی ساخت تصویر در دسترس نیست) و فونت قالب‌ها. */
+  render: { browserPath: string | null; fontBase64: () => string };
   logger: Logger;
   settings: {
     profile: 'local' | 'server';

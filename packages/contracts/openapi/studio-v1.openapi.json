@@ -6470,6 +6470,83 @@
               "audit_days"
             ],
             "additionalProperties": false
+          },
+          "visual": {
+            "type": "object",
+            "properties": {
+              "colors": {
+                "type": "object",
+                "properties": {
+                  "ink": {
+                    "type": "string",
+                    "pattern": "^#[0-9A-Fa-f]{6}$"
+                  },
+                  "paper": {
+                    "type": "string",
+                    "pattern": "^#[0-9A-Fa-f]{6}$"
+                  },
+                  "signal": {
+                    "type": "string",
+                    "pattern": "^#[0-9A-Fa-f]{6}$"
+                  },
+                  "stone": {
+                    "type": "string",
+                    "pattern": "^#[0-9A-Fa-f]{6}$"
+                  },
+                  "mist": {
+                    "type": "string",
+                    "pattern": "^#[0-9A-Fa-f]{6}$"
+                  },
+                  "hairline": {
+                    "type": "string",
+                    "pattern": "^#[0-9A-Fa-f]{6}$"
+                  }
+                },
+                "required": [
+                  "ink",
+                  "paper",
+                  "signal",
+                  "stone",
+                  "mist",
+                  "hairline"
+                ],
+                "additionalProperties": false
+              },
+              "handle": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "swipe_cue_fa": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "pillar_kickers": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                }
+              },
+              "dark_pillars": {
+                "maxItems": 20,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+                }
+              }
+            },
+            "required": [
+              "colors"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [
@@ -7798,6 +7875,7 @@
             "enum": [
               "build_weekly_plan",
               "generate_drafts",
+              "render_visuals",
               "collect_metrics"
             ]
           },
@@ -7816,6 +7894,15 @@
                 "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
               },
               "schedule_entry_ids": {
+                "maxItems": 50,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                }
+              },
+              "content_ids": {
                 "maxItems": 50,
                 "type": "array",
                 "items": {
@@ -9454,6 +9541,7 @@
             "enum": [
               "build_weekly_plan",
               "generate_drafts",
+              "render_visuals",
               "collect_metrics"
             ]
           },

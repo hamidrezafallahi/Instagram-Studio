@@ -51,6 +51,37 @@ export const RetentionSettings = z.strictObject({
 });
 export type RetentionSettings = z.infer<typeof RetentionSettings>;
 
+const HexColor = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
+
+/**
+ * هویت بصری برای قالب‌های رندر (M3.3). اختیاری: بدون آن قالب خنثای پیش‌فرض استفاده می‌شود.
+ * فونت فارسی قالب‌ها Vazirmatn (OFL) است و از config/fonts می‌آید، نه از این سند.
+ */
+export const BrandVisual = z.strictObject({
+  colors: z.strictObject({
+    /** متن اصلی روی زمینهٔ روشن و زمینهٔ تیره. */
+    ink: HexColor,
+    /** زمینهٔ روشن. */
+    paper: HexColor,
+    /** تنها رنگ تأکید (کلمهٔ کلیدی، عدد بزرگ، دکمهٔ CTA). */
+    signal: HexColor,
+    /** متن ثانویه روی زمینهٔ روشن. */
+    stone: HexColor,
+    /** متن ثانویه روی زمینهٔ تیره. */
+    mist: HexColor,
+    /** خط‌های جداکننده روی زمینهٔ روشن (فقط تزئینی). */
+    hairline: HexColor,
+  }),
+  /** نشانی صفحه که در پانویس هر اسلاید می‌آید، مثل @example. */
+  handle: z.string().min(1).max(60).optional(),
+  swipe_cue_fa: z.string().min(1).max(40).optional(),
+  /** برچسب بالای اسلاید برای هر ستون محتوا، مثل «// CASE STUDY». */
+  pillar_kickers: z.record(Slug, z.string().min(1).max(40)).optional(),
+  /** ستون‌هایی که با زمینهٔ تیره رندر می‌شوند؛ بقیه روشن. */
+  dark_pillars: z.array(Slug).max(20).optional(),
+});
+export type BrandVisual = z.infer<typeof BrandVisual>;
+
 /** پیش‌فرض نگهداری داده از docs/product/ASSUMPTIONS.md؛ تا تأیید مالک قابل تغییر می‌ماند. */
 export const DEFAULT_RETENTION: RetentionSettings = {
   message_text_days: 90,
@@ -93,6 +124,7 @@ export const BrandProfile = z
     /** پاسخ مالک به required_fields و faq_fields بستهٔ صنعت. */
     pack_fields: z.record(Slug, z.string().max(4000)),
     retention: RetentionSettings,
+    visual: BrandVisual.optional(),
   })
   .meta({ id: 'BrandProfile', description: 'سند نسخه‌دار تنظیمات برند؛ بدون راز' });
 export type BrandProfile = z.infer<typeof BrandProfile>;

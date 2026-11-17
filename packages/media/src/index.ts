@@ -1,2 +1,26 @@
 export { MAX_BYTES, MAX_IMAGE_SIDE, sniffMedia, type MediaFamily, type SniffResult } from './sniff.ts';
 export { AssetStore, type StoredFile } from './store.ts';
+export {
+  DEFAULT_VISUAL,
+  FORMAT_SPECS,
+  HtmlRenderer,
+  TEMPLATE_VERSION,
+  VISUAL_FORMATS,
+  VISUAL_QA_VERSION,
+  contrastChecks,
+  contrastRatio,
+  findBrowser,
+  isVisualFormat,
+  loadVazirmatn,
+  parseVisual,
+  renderVisual,
+  slideHtml,
+  type FormatSpec,
+  type ParsedVisual,
+  type RenderedSlide,
+  type Slide,
+  type SlideRole,
+  type VisualFormat,
+  type VisualRequest,
+  type VisualResult,
+} from './render/index.ts';

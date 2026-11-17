@@ -5,7 +5,7 @@ import { createFakeConnector, FakeProviderState } from '@studio/connector-fake';
 import { StudioError, type IndustryPack, type IndustryPackSummary } from '@studio/contracts';
 import { join } from 'node:path';
 import { Database } from '@studio/data';
-import { AssetStore } from '@studio/media';
+import { AssetStore, findBrowser, loadVazirmatn } from '@studio/media';
 import { createLogger, createVault, loadMasterKey, processScrubber, type Logger } from '@studio/security';
 import { createAssetService } from './assets.ts';
 import { createAuthService } from './auth.ts';
@@ -18,6 +18,7 @@ import { createPlanningService } from './planning.ts';
 import { createReportService } from './reports.ts';
 import { createRunService } from './runs.ts';
 import { createSampleDataService } from './sample-data.ts';
+import { createVisualService } from './visuals.ts';
 
 export type { Access, AuthenticatedSession, IssuedSession } from './auth.ts';
 export type { AssetFile } from './assets.ts';
@@ -41,7 +42,8 @@ export function createStudio(deps: StudioDeps, options: { faults?: ExecutionFaul
   const connections = createConnectionService(deps);
   const execution = createExecutionService(deps, brands, connections, options.faults);
   const planning = createPlanningService(deps, brands, { onRevision: execution.invalidateForRevision });
-  const runs = createRunService(deps, brands, connections);
+  const visuals = createVisualService(deps, brands, { onRevision: execution.invalidateForRevision });
+  const runs = createRunService(deps, brands, connections, visuals);
   const reports = createReportService(deps, brands);
   const sampleData = createSampleDataService(deps, brands, connections);
   const brandImport = createBrandImportService(deps, brands);
@@ -124,6 +126,13 @@ export function createStudioFromConfig(options: StudioOptions): Studio {
     connectors,
     models: options.models ?? createModelGateway(config),
     assets: new AssetStore(options.assetRoot ?? join(config.home, 'assets')),
+    render: {
+      browserPath: findBrowser(config.browserPath),
+      fontBase64: (() => {
+        let cached: string | null = null;
+        return () => (cached ??= loadVazirmatn(config.repoRoot));
+      })(),
+    },
     logger: options.logger ?? createLogger({ service: 'studio', level: config.logLevel }),
     settings: { profile: config.profile, sampleData: config.sampleData, sessionTtlHours: 24 * 7 },
     now: options.now ?? (() => new Date()),

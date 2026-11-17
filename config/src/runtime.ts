@@ -31,6 +31,8 @@ const RuntimeEnv = z.object({
   STUDIO_TEXT_MODEL: z.enum(['auto', 'template', 'openrouter']).default('auto'),
   /** فهرست مدل‌های رایگان OpenRouter به ترتیب ترجیح، جداشده با ویرگول؛ فقط شناسه‌های «:free». */
   STUDIO_OPENROUTER_MODELS: z.string().min(1).optional(),
+  /** مسیر Chrome/Edge برای رندر تصویر؛ خالی = جست‌وجوی مسیرهای معمول. */
+  STUDIO_BROWSER_PATH: z.string().min(1).optional(),
 });
 
 /**
@@ -64,6 +66,8 @@ export interface RuntimeConfig {
   /** تولیدکنندهٔ متن پیش‌نویس. کلید OpenRouter در این ساختار نیست؛ فقط در محیط فرایند خوانده می‌شود. */
   readonly textModel: 'template' | 'openrouter';
   readonly openrouterModels: readonly string[];
+  /** مسیر صریح مرورگر رندر؛ undefined = جست‌وجوی خودکار. */
+  readonly browserPath?: string | undefined;
 }
 
 export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -135,5 +139,6 @@ export function loadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): Runtime
     openrouterModels: value.STUDIO_OPENROUTER_MODELS
       ? value.STUDIO_OPENROUTER_MODELS.split(',').map((item) => item.trim()).filter(Boolean)
       : DEFAULT_OPENROUTER_MODELS,
+    browserPath: value.STUDIO_BROWSER_PATH,
   };
 }

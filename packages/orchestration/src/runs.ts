@@ -40,6 +40,7 @@ import {
 } from '@studio/workflows';
 import type { BrandService } from './brands.ts';
 import type { ConnectionService } from './connections.ts';
+import type { VisualService } from './visuals.ts';
 import { audit, notFound, type BrandCall, type StudioDeps } from './context.ts';
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -61,7 +62,12 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   });
 }
 
-export function createRunService(deps: StudioDeps, brands: BrandService, connections: ConnectionService) {
+export function createRunService(
+  deps: StudioDeps,
+  brands: BrandService,
+  connections: ConnectionService,
+  visuals: VisualService,
+) {
   const scopeOf = (call: BrandCall) => ({ workspaceId: call.workspace_id, brandId: call.brand_id });
 
   async function view(call: BrandCall, row: RunRow, replayed: boolean): Promise<RunView> {
@@ -202,6 +208,9 @@ export function createRunService(deps: StudioDeps, brands: BrandService, connect
           throw error;
         }
       },
+
+      listRenderable: (weekStart, contentIds) => visuals.listRenderable(call, weekStart, contentIds),
+      renderContent: (contentId) => visuals.renderContent(call, contentId, `run:${run.id}`),
 
       async listMetricsSources() {
         const { rows, capabilities } = await connections.listRows(call);
