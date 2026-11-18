@@ -16,7 +16,23 @@ import {
 import { z } from 'zod';
 import type { AgentRole } from './types.ts';
 
-export const QA_VERSION = 'rules-1.0.0';
+export const QA_VERSION = 'rules-1.1.0';
+
+/**
+ * ادعای تجربه یا نتیجهٔ اول‌شخص («در پروژه‌ها دیده‌ام»، «مشتریان ما»). مدل ممکن است چنین تجربه‌ای بسازد؛
+ * قاعدهٔ «فقط مدرک واقعی» می‌گوید مالک باید پیش از تأیید درستی‌اش را تأیید کند (یافتهٔ ارزیابی M3.6).
+ */
+/** عبری، سیریلیک، یونانی، دواناگری، تایلندی، هانگول و CJK؛ فارسی، لاتین، رقم و ایموجی مجازند. */
+const FOREIGN_SCRIPT = /[Ͱ-ϿЀ-ӿ֐-׿ऀ-ॿ฀-๿ᄀ-ᇿ぀-ヿ㐀-鿿가-힯]+/;
+
+const EXPERIENCE_PATTERNS: readonly RegExp[] = [
+  /(?:^|[\s،.؛:!؟(«])(?:من\s+)?(?:در|توی)\s+(?:پروژه|کار)(?:‌?ها|‌?های)?\s*(?:ی?\s*(?:قبلی|خودم|مختلف))?[^.\n]{0,40}?(?:دیده‌?ام|دیدم|تجربه\s+کرده‌?ام|متوجه\s+شده‌?ام)/,
+  /(?:دیده‌?ام|تجربه\s+کرده‌?ام|متوجه\s+شده‌?ام)\s+که/,
+  /(?:تجربهٔ?\s+من|تجربه‌?ام|تجربه‌?های\s+من)/,
+  // «ما/من» باید کلمهٔ کامل باشد (نه آغاز «منتظر» یا «مانند»).
+  /(?:مشتری‌?(?:ها|های)?\s+(?:ما|من)|مشتریانم|مشتریان\s+ما|پروژه‌?(?:ها|های)?\s*(?:ی)?\s*(?:ما|من)|پروژه‌?هایم)(?![\u0600-\u06FF\u200C])/,
+  /(?:برای|با)\s+(?:یکی\s+از\s+)?مشتری(?:ان|‌?ها)?(?:م|\s+ما)?(?![\u0600-\u06FF\u200C])\s+[^.\n]{0,30}?(?:کرده‌?ام|کردیم|ساختم|ساختیم)/,
+];
 
 export interface EditorQaInput {
   text: string;
@@ -139,6 +155,39 @@ function review(input: EditorQaInput): QaOutput {
   }
   if (forbidden + needsEvidence + escalated === 0) {
     add({ id: 'claims', severity: 'info', passed: true, message_fa: 'عبارتی از فهرست ادعاهای حساس پیدا نشد.' });
+  }
+
+  // ۳الف) خط بیگانه: مدل گاهی واژهٔ عبری، سیریلیک یا چینی وسط متن فارسی می‌گذارد (یافتهٔ ارزیابی M3.6).
+  const foreign = FOREIGN_SCRIPT.exec(text);
+  add({
+    id: 'foreign_script',
+    severity: 'error',
+    passed: !foreign,
+    message_fa: foreign
+      ? 'نویسهٔ خط غیرفارسی/غیرلاتین (مثلاً عبری یا سیریلیک) در متن هست؛ احتمالاً خطای مدل است و باید اصلاح شود.'
+      : 'نویسهٔ خط بیگانه در متن نیست.',
+    ...(foreign ? { excerpt: excerpt(text, foreign.index, foreign[0].length).slice(0, 200) } : {}),
+  });
+
+  // ۳ب) ادعای تجربه یا نتیجهٔ اول‌شخص: فقط مالک می‌داند واقعی است یا نه.
+  for (const pattern of EXPERIENCE_PATTERNS) {
+    const match = pattern.exec(text);
+    if (!match) continue;
+    const at = match.index + (match[0].length - match[0].trimStart().length);
+    claims.push({
+      id: `first_person_experience_${claims.length + 1}`.slice(0, 64),
+      text: excerpt(text, at, match[0].trim().length).slice(0, 500),
+      kind: 'result',
+      status: 'needs_verification',
+    });
+    add({
+      id: 'claim_first_person_experience',
+      severity: 'warning',
+      passed: false,
+      message_fa: 'ادعای تجربه یا نتیجهٔ شخصی؛ فقط اگر واقعاً برای شما رخ داده و مدرکش را دارید نگه دارید، وگرنه حذف کنید.',
+      excerpt: excerpt(text, at, match[0].trim().length).slice(0, 200),
+    });
+    break;
   }
 
   // ۴) نگارش فارسی

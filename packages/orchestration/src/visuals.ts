@@ -51,7 +51,7 @@ export function mergeQa(previous: QaResult, visual: QaCheck[], checkedAt: string
   };
 }
 
-interface RenderedOutput {
+export interface RenderedOutput {
   kind: 'image' | 'video' | 'subtitle';
   mime: string;
   data: Buffer;
@@ -67,7 +67,7 @@ interface RenderedOutput {
  * ریلز (M3.4): ویدئوی اسلایدی از بخش‌های اسکریپت + کاور + زیرنویس SRT/VTT هم‌زمان با فریم‌ها.
  * ترتیب دارایی‌ها: ویدئو، کاور، SRT، VTT. QA شامل چک‌های بصری همهٔ فریم‌ها و چک فنی خود فایل MP4 است.
  */
-async function reelOutputs(
+export async function reelOutputs(
   renderer: HtmlRenderer,
   cover: VisualResult,
   text: string,

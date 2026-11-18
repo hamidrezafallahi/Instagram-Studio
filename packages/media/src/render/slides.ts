@@ -23,19 +23,26 @@ export type VisualFormat = 'carousel' | 'story' | 'post' | 'reel';
 const DIGIT = '[0-9۰-۹٠-٩]';
 
 /** حذف نشانه‌گذاری markdown ساده که مدل گاهی اضافه می‌کند. */
-function clean(text: string): string {
-  return text
+function clean(text: string, forImage = true): string {
+  const base = text
     .replace(/\*\*(.+?)\*\*/g, '$1')
     // فقط تیتر markdown («# » با فاصله)؛ هشتگ (#بدون_فاصله) دست نمی‌خورد.
     .replace(/^#+[ \t]+/gm, '')
-    .replace(/[ \t]+\n/g, '\n')
+    .replace(/[ \t]+\n/g, '\n');
+  if (!forImage) return base.trim();
+  return base
+    // پیشنهاد استیکر (نظرسنجی، سؤال…) دستور تولید برای مالک است، نه متن روی تصویر؛ در متن پیش‌نویس می‌ماند.
+    .replace(/\s*[(（]\s*(?:استیکر|sticker)[^)）]*[)）]/gi, '')
+    // سطری که فقط هشتگ است متعلق به کپشن است، نه تصویر (استوری بخش «کپشن:» ندارد).
+    .replace(/^[ \t]*(?:#[^\s#]+[ \t]*)+$/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
 
 function splitCaption(text: string): { body: string; caption: string | null } {
   const match = /^\s*کپشن\s*:\s*/m.exec(text);
   if (!match) return { body: text, caption: null };
-  return { body: text.slice(0, match.index), caption: clean(text.slice(match.index + match[0].length)) || null };
+  return { body: text.slice(0, match.index), caption: clean(text.slice(match.index + match[0].length), false) || null };
 }
 
 /** بخش‌بندی بر اساس «اسلاید …» یا «فریم …» در ابتدای خط. */

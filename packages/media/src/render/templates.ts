@@ -187,7 +187,11 @@ export function measureExpression(format: VisualFormat): string {
         }
       }
     }
-    return { overflow, outside: [...new Set(outside)], minFont };
+    // A22: فونت فارسی واقعاً اعمال شده است، نه فونت جایگزین سیستم.
+    const persian = [...document.querySelectorAll('h1, h2, p, .cta')];
+    const fontApplied = document.fonts.check("900 40px 'Vazirmatn'") && document.fonts.check("400 40px 'Vazirmatn'")
+      && persian.every((el) => getComputedStyle(el).fontFamily.startsWith('Vazirmatn') || getComputedStyle(el).fontFamily.startsWith('"Vazirmatn"'));
+    return { overflow, outside: [...new Set(outside)], minFont, fontApplied };
   })()`;
 }
 
@@ -195,6 +199,7 @@ export interface Measure {
   overflow: string[];
   outside: string[];
   minFont: number;
+  fontApplied: boolean;
 }
 
 /** رنگ متن دکمهٔ CTA: هر کدام از ink یا paper که روی رنگ تأکید کنتراست بیشتری دارد. */

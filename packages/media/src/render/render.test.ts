@@ -39,6 +39,18 @@ describe('parseVisual', () => {
     assert.equal(reel.slides[0]?.title, 'تیتر کاور');
   });
 
+  it('پیشنهاد استیکر روی تصویر نمی‌آید', () => {
+    const { slides } = parseVisual('story', 'فریم ۱: آیا پرداخت ساده است؟ (استیکر نظرسنجی: بله / خیر)\n\nفریم پایانی: پیام بدهید');
+    assert.equal(slides[0]?.title, 'آیا پرداخت ساده است؟');
+  });
+
+  it('سطر هشتگ (بدون بخش کپشن) روی تصویر نمی‌آید؛ هشتگ درون جمله می‌ماند', () => {
+    const { slides } = parseVisual('story', 'فریم ۱: سؤال\n\nفریم پایانی: پیام بدهید.\n#طراحی_سایت #سرعت_سایت');
+    assert.equal(slides[1]?.title, 'پیام بدهید.');
+    const inline = parseVisual('post', 'برچسب #سئو در جمله\n\nکپشن:\n#a');
+    assert.equal(inline.slides[0]?.title, 'برچسب #سئو در جمله');
+  });
+
   it('متن بی‌ساختار اسلاید حدسی نمی‌سازد', () => {
     assert.deepEqual(parseVisual('carousel', 'یک پاراگراف آزاد بدون اسلاید.').slides, []);
   });

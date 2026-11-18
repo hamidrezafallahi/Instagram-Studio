@@ -24,7 +24,8 @@
     "test": "node scripts/run-tests.ts",
     "test:unit": "node scripts/run-tests.ts --unit",
     "acceptance": "node scripts/run-tests.ts --acceptance",
-    "eval:text": "node scripts/eval-text-model.ts"
+    "eval:text": "node scripts/eval-text-model.ts",
+    "eval:visual": "node scripts/eval-visual.ts"
   },
   "dependencies": {
     "@studio/agents": "workspace:*",

@@ -160,6 +160,7 @@ export function slideChecks(
   const outside = rendered.filter((item) => item.measure.outside.length > 0);
   const small = rendered.filter((item) => item.measure.minFont < MIN_FONT_PX);
   const shrunk = rendered.filter((item) => item.scale < 1);
+  const noFont = rendered.filter((item) => !item.measure.fontApplied);
   return [
     check(
       'visual_slides',
@@ -182,6 +183,13 @@ export function slideChecks(
       outside.length === 0,
       outside.length === 0 ? 'متن در ناحیهٔ امن است.' : 'بخشی از متن بیرون از ناحیهٔ امن است.',
       outside.map((item) => `${label(item)} (${item.measure.outside.join('، ')})`).join(' | '),
+    ),
+    check(
+      'visual_font',
+      'error',
+      noFont.length === 0,
+      noFont.length === 0 ? 'فونت فارسی Vazirmatn روی همهٔ متن‌ها اعمال شد.' : 'فونت فارسی بارگیری یا اعمال نشد؛ متن با فونت جایگزین رندر شده است.',
+      noFont.map(label).join(' | '),
     ),
     check(
       'visual_min_font',

@@ -1,0 +1,4 @@
+carousel: openrouter:nvidia/nemotron-3-ultra-550b-a55b:free | 45 ثانیه | 7 فایل | ایراد: 0
+reel: openrouter:nvidia/nemotron-3-ultra-550b-a55b:free | 50 ثانیه | 4 فایل | ایراد: 0
+story: openrouter:nvidia/nemotron-3-ultra-550b-a55b:free | 29 ثانیه | 4 فایل | ایراد: 0
+post: openrouter:nvidia/nemotron-3-ultra-550b-a55b:free | 26 ثانیه | 1 فایل | ایراد: 0

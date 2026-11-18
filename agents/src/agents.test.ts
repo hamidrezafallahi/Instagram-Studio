@@ -5,7 +5,7 @@ import { loadIndustryPacks } from '@studio/config';
 import { StudioError, type BrandProfile, type IndustryPack } from '@studio/contracts';
 import { buildInitialProfile, findOwnerInputMarkers } from '@studio/domain';
 import { z } from 'zod';
-import { copywriter, editorQa, strategist, toRequest, type CopywriterInput } from './index.ts';
+import { buildCopywriterPrompt, copywriter, editorQa, strategist, toRequest, type CopywriterInput } from './index.ts';
 
 const packs = loadIndustryPacks();
 const pack = (id: string): IndustryPack => packs.get(id) as IndustryPack;
@@ -301,3 +301,47 @@ describe('بازبین کیفیت (editor-qa)', () => {
     assert.deepEqual(Object.keys(editorQa.template(qaInput('x', webBrand()))).sort(), ['claims', 'qa_result']);
   });
 });
+
+describe('بازبین کیفیت — ادعای تجربهٔ اول‌شخص (M3.6)', () => {
+  const run = (text: string) => editorQa.template(qaInput(text, webBrand()));
+
+  for (const text of [
+    'من در پروژه‌ها دیده‌ام که هر فیلد اضافه نرخ تبدیل را می‌اندازد.',
+    'تجربهٔ من نشان می‌دهد سرعت مهم است.',
+    'برای یکی از مشتریانم فروشگاه ساختم.',
+    'مشتری‌های ما بعد از بازطراحی راضی‌ترند.',
+  ]) {
+    it(`علامت می‌خورد: ${text}`, () => {
+      const out = run(text);
+      const check = out.qa_result.checks.find((item) => item.id === 'claim_first_person_experience');
+      assert.equal(check?.passed, false);
+      assert.ok(out.claims.some((claim) => claim.status === 'needs_verification'));
+    });
+  }
+
+  it('معرفی خود یا توصیهٔ عمومی علامت نمی‌خورد', () => {
+    const out = run('من حمیدرضا فلاحی، مهندس نرم‌افزار هستم. فرم پرداخت کوتاه، خرید را ساده‌تر می‌کند. گوگل و مشتری منتظر نمی‌مانند؛ مشتری مانند همیشه می‌رود.');
+    assert.equal(out.qa_result.checks.some((item) => item.id === 'claim_first_person_experience'), false);
+  });
+});
+
+describe('بازبین کیفیت — خط بیگانه (M3.6)', () => {
+  it('واژهٔ عبری وسط متن فارسی خطاست؛ لاتین، رقم و ایموجی مجازند', () => {
+    const bad = editorQa.template(qaInput('درگاه پرداخت ישר و امن ندارید؟', webBrand()));
+    assert.equal(bad.qa_result.status, 'fail');
+    assert.equal(bad.qa_result.checks.find((check) => check.id === 'foreign_script')?.passed, false);
+    const good = editorQa.template(qaInput('سرعت LCP زیر ۲٫۵ ثانیه 🚀 و SSL فعال.', webBrand()));
+    assert.equal(good.qa_result.checks.find((check) => check.id === 'foreign_script')?.passed, true);
+  });
+});
+
+describe('prompt ریلز', () => {
+  it('تیتر محتوایی برای هر بخش می‌خواهد', () => {
+    const prompt = buildCopywriterPrompt({
+      profile: webBrand(), pack: pack('web-services'), brand_revision: 1,
+      entry: { channel: 'instagram', format: 'reel', pillar: 'process', topic_fa: 'موضوع', goal_fa: 'هدف', cta_fa: 'پیام بدهید' },
+    });
+    assert.ok(`${prompt.system}\n${prompt.user}`.includes('نه برچسبی مثل «توضیح»'));
+  });
+});
+

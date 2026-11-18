@@ -22,6 +22,7 @@ import { createVisualService } from './visuals.ts';
 
 export type { Access, AuthenticatedSession, IssuedSession } from './auth.ts';
 export type { AssetFile } from './assets.ts';
+export { reelOutputs, type RenderedOutput } from './visuals.ts';
 export {
   BRANDS_DIR,
   buildSeedProfile,
